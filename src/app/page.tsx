@@ -6,9 +6,11 @@ import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { ImageWithFallback } from "../src/app/components/figma/ImageWithFallback";
 
+
 export default function Home() {
   const { user } = useAuth();
   const { t } = useLanguage();
+
 
   const testimonials = [
     {

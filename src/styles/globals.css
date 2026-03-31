@@ -39,6 +39,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: rgba(124, 58, 237, 0.1);
   --sidebar-ring: #7c3aed;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
 }
 
 .dark {
@@ -136,17 +140,8 @@
  */
 @layer base {
   :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
-    h1 {
-      font-size: var(--text-2xl);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
-
-    h2 {
-      font-size: var(--text-xl);
-      font-weight: var(--font-weight-medium);
-      line-height: 1.5;
-    }
+    h1 { @apply text-2xl font-semibold; }
+    h2 { @apply text-xl font-semibold; }
 
     h3 {
       font-size: var(--text-lg);
@@ -179,6 +174,7 @@
     }
   }
 }
+
 
 html {
   font-size: var(--font-size);
