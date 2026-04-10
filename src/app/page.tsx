@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Trophy, Users, Award, Calendar, CheckCircle, Shield, Bell, Sparkles, TrendingUp, FileText, Star, ArrowRight, BarChart3, BookOpen, Target, Zap, MessageCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Trophy, Users, Award, Calendar, CheckCircle, Shield, Bell, Sparkles, FileText, Star, ArrowRight, BarChart3, Target, Zap, MessageCircle, LayoutDashboard } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
-import { ImageWithFallback } from "../src/app/components/figma/ImageWithFallback";
-
 
 export default function Home() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+
 
 
   const testimonials = [
@@ -363,6 +362,7 @@ export default function Home() {
           </div>
         </div>
       )}
+        
     </div>
   );
 }
