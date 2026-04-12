@@ -1,326 +1,332 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
-import { Trophy, Calendar, MapPin, Users, Search, Filter, CheckCircle, Banknote, Award, FileText, Download } from "lucide-react";
+import {
+  Trophy,
+  Calendar,
+  MapPin,
+  Users,
+  Search,
+  Filter,
+  CheckCircle,
+  Award,
+  Sparkles,
+  ChevronRight,
+} from "lucide-react";
+
 import { useAuth } from "../lib/auth-context";
-import { useTournaments } from "../lib/tournament-context";
+import { useOlympiads } from "../lib/tournament-context";
 import { useLanguage } from "../lib/language-context";
 import { PaymentModal } from "./PaymentModal";
+import { motion } from "motion/react";
+import { updateRevenue } from "../services/organizerService";
 
 export function StudentDashboard() {
   const { user } = useAuth();
-  const { tournaments, getStudentRegistrations, registerForTournament, unregisterFromTournament } = useTournaments();
+  const { olympiads, register, unregister } = useOlympiads();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState<"available" | "registered">("available");
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedTournament, setSelectedTournament] = useState<{ id: string; title: string; fee: number } | null>(null);
+  const [activeTab, setActiveTab] =
+    useState<"available" | "registered">("available");
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedOlympiad, setSelectedOlympiad] = useState<{
+    id: string;
+    title: string;
+    fee: number;
+  } | null>(null);
+
+  /** AUTH GUARD */
   useEffect(() => {
     if (!user || user.role !== "student") {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  if (!user || user.role !== "student") {
-    return null;
-  }
+  if (!user || user.role !== "student") return null;
 
-  const myRegistrations = getStudentRegistrations(user.id);
+  /** MY REGISTRATIONS */
+  const myRegistrations = olympiads.filter((o) =>
+    (o.registrations || []).includes(user.id)
+  );
 
-  // Filter tournaments
-  const filteredTournaments = tournaments.filter((tournament) => {
-    const matchesSearch = tournament.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tournament.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || tournament.category === categoryFilter;
-    
+  /** FILTER */
+  const filteredOlympiads = olympiads.filter((o) => {
+    const matchesSearch =
+      o.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      o.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      categoryFilter === "all" || o.category === categoryFilter;
+
     if (activeTab === "registered") {
-      return myRegistrations.some(r => r.id === tournament.id);
+      return o.registrations.includes(user.id);
     }
-    
+
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["all", ...Array.from(new Set(tournaments.map(t => t.category)))];
+  const categories = [
+    "all",
+    ...Array.from(new Set(olympiads.map((o) => o.category))),
+  ];
 
-  const handleRegister = (tournamentId: string) => {
-    const tournament = tournaments.find(t => t.id === tournamentId);
-    if (tournament) {
-      setSelectedTournament({
-        id: tournament.id,
-        title: tournament.title,
-        fee: tournament.registrationFee
-      });
-      setShowPaymentModal(true);
-    }
+  /** REGISTER FLOW (PAYMENT FIRST) */
+  const handleRegister = (olympiadId: string) => {
+    const o = olympiads.find((x) => x.id === olympiadId);
+    if (!o) return;
+
+    setSelectedOlympiad({
+      id: o.id,
+      title: o.title,
+      fee: o.registration_fee,
+    });
+
+    setShowPaymentModal(true);
   };
 
-  const handlePaymentConfirm = () => {
-    if (selectedTournament) {
-      const success = registerForTournament(selectedTournament.id, user.id);
-      if (!success) {
-        alert(t("student.registrationFailed"));
-      }
-      setShowPaymentModal(false);
-      setSelectedTournament(null);
-    }
-  };
+  const handlePaymentConfirm = async () => {
+    if (!selectedOlympiad || !user) return;
 
-  const handlePaymentClose = () => {
+    await register(selectedOlympiad.id, user.id);
+
     setShowPaymentModal(false);
-    setSelectedTournament(null);
+    setSelectedOlympiad(null);
   };
 
-  const handleUnregister = (tournamentId: string) => {
-    if (confirm(t("student.confirmUnregister"))) {
-      unregisterFromTournament(tournamentId, user.id);
+  const handleUnregister = async (id: string) => {
+    if (confirm("Бүртгэлээ цуцлах уу?")) {
+      const olympiad = olympiads.find((o) => o.id === id);
+      if (olympiad) {
+        await updateRevenue(olympiad.organizer_id, -(olympiad.registration_fee ?? 0));
+      }
+      await unregister(id, user.id);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            {t("student.title")}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {t("student.welcome")}, {user.name} - {user.school} ({user.grade})
-          </p>
-        </div>
-        <Link
-          to="/achievements"
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+    <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto space-y-8">
+
+        {/* HEADER */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 shadow-lg"
         >
-          <Award className="size-5" />
-          <span className="hidden sm:inline">{t("nav.achievements")}</span>
-        </Link>
-      </div>
-
-      {/* Stats */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">{t("student.availableTournaments")}</span>
-            <Trophy className="size-5 text-purple-600" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900">{tournaments.length}</div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">{t("student.myRegistrations")}</span>
-            <CheckCircle className="size-5 text-green-600" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900">{myRegistrations.length}</div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">{t("student.categories")}</span>
-            <Filter className="size-5 text-indigo-600" />
-          </div>
-          <div className="text-3xl font-bold text-gray-900">{categories.length - 1}</div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab("available")}
-          className={`px-4 py-2 border-b-2 transition-colors ${
-            activeTab === "available"
-              ? "border-purple-600 text-purple-600 font-semibold"
-              : "border-transparent text-gray-600 hover:text-gray-900"
-          }`}
-        >
-          {t("student.availableTournaments")}
-        </button>
-        <button
-          onClick={() => setActiveTab("registered")}
-          className={`px-4 py-2 border-b-2 transition-colors ${
-            activeTab === "registered"
-              ? "border-purple-600 text-purple-600 font-semibold"
-              : "border-transparent text-gray-600 hover:text-gray-900"
-          }`}
-        >
-          {t("student.myRegistrations")}
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-6">
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
-            <input
-              type="text"
-              placeholder={t("student.search")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-            />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-5" />
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent appearance-none bg-white"
-            >
-              <option value="all">{t("student.allCategories")}</option>
-              {categories.slice(1).map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Tournament Grid */}
-      {filteredTournaments.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <Trophy className="size-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {activeTab === "available" ? t("student.noTournaments") : t("student.noRegistrations")}
-          </h3>
-          <p className="text-gray-600">
-            {activeTab === "available" ? t("student.checkBack") : t("student.browseAvailable")}
-          </p>
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTournaments.map((tournament) => {
-            const isRegistered = myRegistrations.some(r => r.id === tournament.id);
-            const isFull = tournament.registeredCount >= tournament.maxParticipants;
-            const isPast = new Date(tournament.date) < new Date();
-
-            return (
-              <div
-                key={tournament.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col"
-              >
-                <div className="mb-4 flex-1">
-                  <div className="mb-2">
-                    <h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2">
-                      {tournament.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
-                        {tournament.category}
-                      </span>
-                      {isRegistered && (
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs flex items-center gap-1">
-                          <CheckCircle className="size-3" />
-                          {t("student.registered")}
-                        </span>
-                      )}
-                      {isFull && !isRegistered && (
-                        <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs">
-                          {t("student.full")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm line-clamp-3">{tournament.description}</p>
-                </div>
-
-                <div className="space-y-2 mb-4 text-sm">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="size-4 flex-shrink-0" />
-                    <span className="truncate">{new Date(tournament.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="size-4 flex-shrink-0" />
-                    <span className="truncate">{tournament.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Users className="size-4 flex-shrink-0" />
-                    <span>
-                      {tournament.registeredCount} / {tournament.maxParticipants}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Banknote className="size-4 flex-shrink-0" />
-                    <span className="font-semibold">{tournament.registrationFee.toLocaleString()}₮</span>
-                  </div>
-                  {tournament.preparationMaterial && (
-                    <a
-                      href={tournament.preparationMaterial.fileUrl}
-                      download={tournament.preparationMaterial.fileName}
-                      className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors"
-                      title={t("tournament.downloadMaterial")}
-                    >
-                      <FileText className="size-4 flex-shrink-0" />
-                      <span className="truncate text-xs">{tournament.preparationMaterial.fileName}</span>
-                      <Download className="size-3 flex-shrink-0" />
-                    </a>
-                  )}
-                </div>
-
-                <div className="mb-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-purple-600 h-2 rounded-full"
-                      style={{
-                        width: `${Math.min((tournament.registeredCount / tournament.maxParticipants) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 pt-3 border-t border-gray-200">
-                  <Link
-                    to={`/tournament/${tournament.id}`}
-                    className="w-full px-4 py-2 text-center text-purple-600 hover:bg-purple-50 rounded-lg transition-colors text-sm"
-                  >
-                    {t("student.details")}
-                  </Link>
-                  {isRegistered ? (
-                    <button
-                      onClick={() => handleUnregister(tournament.id)}
-                      className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
-                    >
-                      {t("student.unregister")}
-                    </button>
-                  ) : isPast ? (
-                    <button
-                      disabled
-                      className="w-full px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-sm"
-                    >
-                      {t("student.finished")}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleRegister(tournament.id)}
-                      disabled={isFull}
-                      className={`w-full px-4 py-2 rounded-lg transition-colors text-sm ${
-                        isFull
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-purple-600 text-white hover:bg-purple-700"
-                      }`}
-                    >
-                      {t("student.register")}
-                    </button>
-                  )}
-                </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="flex items-center gap-2 text-white/80 mb-2">
+                <Sparkles className="size-4" />
+                Student Portal
               </div>
-            );
-          })}
+
+              <h1 className="text-4xl font-bold text-white">
+                Welcome, {user.name}
+              </h1>
+
+              <p className="text-purple-100">
+                {user.school} • Grade {user.grade}
+              </p>
+            </div>
+
+            <Link
+              to="/achievements"
+              className="px-5 py-3 bg-white text-purple-700 rounded-xl font-semibold"
+            >
+              <Award className="inline size-5 mr-2" />
+              Achievements
+            </Link>
+          </div>
+
+          {/* STATS */}
+          <div className="grid grid-cols-4 gap-4 mt-8 text-white">
+            <div>
+              <div className="text-2xl font-bold">{olympiads.length}</div>
+              <div className="text-sm opacity-80">Total Olympiads</div>
+            </div>
+
+            <div>
+              <div className="text-2xl font-bold">{myRegistrations.length}</div>
+              <div className="text-sm opacity-80">My Registrations</div>
+            </div>
+
+            <div>
+              <div className="text-2xl font-bold">
+                {
+                  myRegistrations.filter(
+                    (o) => new Date(o.date) > new Date()
+                  ).length
+                }
+              </div>
+              <div className="text-sm opacity-80">Upcoming</div>
+            </div>
+
+            <div>
+              <div className="text-2xl font-bold">
+                {
+                  myRegistrations.filter(
+                    (o) => new Date(o.date) <= new Date()
+                  ).length
+                }
+              </div>
+              <div className="text-sm opacity-80">Completed</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* SEARCH + FILTER */}
+        <div className="flex gap-4">
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search olympiads..."
+            className="flex-1 p-3 rounded-xl border"
+          />
+
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="p-3 rounded-xl border"
+          >
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex bg-gray-100 rounded-xl">
+            <button onClick={() => setActiveTab("available")}>
+              Available
+            </button>
+            <button onClick={() => setActiveTab("registered")}>
+              My Events
+            </button>
+          </div>
         </div>
-      )}
-      {showPaymentModal && selectedTournament && (
+
+        {/* GRID */}
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredOlympiads.length === 0 ? (
+            <div className="col-span-full text-center py-16">
+              <Trophy className="size-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-xl text-gray-500 dark:text-gray-400">
+                {activeTab === "registered" ? t("student.noRegistrations") : t("student.noTournaments")}
+              </p>
+            </div>
+          ) : (
+            filteredOlympiads.map((olympiad, index) => {
+              const isRegistered = myRegistrations.some(r => r.id === olympiad.id);
+              const isPast = new Date(olympiad.date) < new Date();
+
+              return (
+                <motion.div
+                  key={olympiad.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-violet-200/50 dark:border-violet-800/50 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300"
+                >
+                  {/* Olympiad Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${isRegistered
+                        ? "from-green-500 to-emerald-600"
+                        : "from-violet-500 to-purple-600"
+                      }`}>
+                      <Trophy className="size-6 text-white" />
+                    </div>
+                    {isRegistered && (
+                      <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-semibold flex items-center gap-1">
+                        <CheckCircle className="size-4" />
+                        Registered
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Olympiad Info */}
+                  <Link to={`/tournament/${olympiad.id}`} className="block mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                      {olympiad.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+                      {olympiad.description}
+                    </p>
+                  </Link>
+
+                  {/* Olympiad Details */}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                      <Calendar className="size-4 text-violet-600 dark:text-violet-400" />
+                      <span>{new Date(olympiad.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                      <MapPin className="size-4 text-violet-600 dark:text-violet-400" />
+                      <span>{olympiad.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                      <Users className="size-4 text-violet-600 dark:text-violet-400" />
+                      <span>{olympiad.registrations.length} participants</span>
+                    </div>
+                    {olympiad.preparation_material && (
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                        <Award className="size-4 text-violet-600 dark:text-violet-400" />
+                        <a
+                          href={olympiad.preparation_material.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-violet-600 dark:text-violet-400 hover:underline"
+                        >
+                          {olympiad.preparation_material.fileName || "View Preparation Material"}
+                        </a>
+                      </div>
+                    )}
+                    
+                  </div>
+                  {/* Fee and Action */}
+                  <div className="flex items-center justify-between pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
+                    <div>
+                      <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                        ₮{olympiad.registration_fee.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Registration fee</div>
+                    </div>
+
+                    {isRegistered ? (
+                      <button
+                        onClick={() => handleUnregister(olympiad.id)}
+                        className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRegister(olympiad.id)}
+                        disabled={isPast || olympiad.registrations.length >= olympiad.max_participants}
+                        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/30 transition-all"
+                      >
+                        Register
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* PAYMENT */}
+      {showPaymentModal && selectedOlympiad && (
         <PaymentModal
-          isOpen={showPaymentModal}
-          tournamentTitle={selectedTournament.title}
-          fee={selectedTournament.fee}
+          tournamentTitle={selectedOlympiad.title}
+          fee={selectedOlympiad.fee}
           onConfirm={handlePaymentConfirm}
-          onClose={handlePaymentClose}
+          onClose={() => setShowPaymentModal(false)}
+          olympiadId={selectedOlympiad.id}
+          organizerId={olympiads.find(o => o.id === selectedOlympiad.id)?.organizer_id || ""}
         />
       )}
     </div>

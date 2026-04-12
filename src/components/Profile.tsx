@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { User, Mail, School, GraduationCap, Building, Phone, MapPin, Save, ArrowLeft } from "lucide-react";
+import { User, Mail, School, GraduationCap, Building, Phone, MapPin, Save, ArrowLeft, Edit3, Shield } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
+import { motion } from "motion/react";
 
 export function Profile() {
   const { user } = useAuth();
@@ -26,205 +27,273 @@ export function Profile() {
   });
 
   const handleSave = () => {
-    // In a real app, you would save to the backend here
     setIsEditing(false);
-    // Show success message
     alert(t("profile.saveSuccess"));
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="min-h-screen p-4 lg:p-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 mb-4 transition-colors"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
         >
           <ArrowLeft className="size-4" />
           {t("profile.back")}
         </button>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              {t("profile.title")}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              {t("profile.subtitle")}
-            </p>
+
+        {/* Header Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl p-8 lg:p-12 overflow-hidden shadow-2xl shadow-violet-500/30"
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
+          
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+            {/* Avatar */}
+            <div className="relative">
+              <div className="size-32 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-4 border-white/30 shadow-xl">
+                <User className="size-16 text-white" />
+              </div>
+              <div className={`absolute -bottom-2 -right-2 p-2 rounded-full ${
+                user.role === "student" 
+                  ? "bg-green-500" 
+                  : "bg-amber-500"
+              } border-4 border-violet-600 shadow-lg`}>
+                {user.role === "student" ? (
+                  <GraduationCap className="size-5 text-white" />
+                ) : (
+                  <Shield className="size-5 text-white" />
+                )}
+              </div>
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 text-center lg:text-left space-y-2">
+              <h1 className="text-4xl font-bold text-white">
+                {user.name}
+              </h1>
+              <p className="text-violet-100 text-lg">
+                {user.email}
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start pt-2">
+                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
+                  user.role === "student"
+                    ? "bg-green-500/20 text-green-100 border border-green-400/30"
+                    : "bg-amber-500/20 text-amber-100 border border-amber-400/30"
+                }`}>
+                  {user.role === "student" ? "Student" : "Organizer"}
+                </span>
+                {user.school && (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm border border-white/30">
+                    <School className="size-4" />
+                    {user.school}
+                  </span>
+                )}
+                {user.grade && (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm border border-white/30">
+                    <GraduationCap className="size-4" />
+                    Grade {user.grade}
+                  </span>
+                )}
+                {user.organization && (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm border border-white/30">
+                    <Building className="size-4" />
+                    {user.organization}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Edit Button */}
+            <button
+              onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+              className="px-6 py-3 bg-white text-violet-600 rounded-2xl font-semibold hover:bg-violet-50 transition-all shadow-xl flex items-center gap-2"
+            >
+              {isEditing ? (
+                <>
+                  <Save className="size-5" />
+                  {t("profile.save")}
+                </>
+              ) : (
+                <>
+                  <Edit3 className="size-5" />
+                  {t("profile.edit")}
+                </>
+              )}
+            </button>
           </div>
-          <button
-            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            {isEditing ? (
+        </motion.div>
+
+        {/* Profile Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-violet-200/50 dark:border-violet-800/50 shadow-lg"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Personal Information
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t("profile.name")}
+              </label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  disabled={!isEditing}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t("profile.email")}
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  disabled={!isEditing}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t("profile.phone")}
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="Enter phone number"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t("profile.address")}
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  disabled={!isEditing}
+                  placeholder="Enter address"
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Role-specific fields */}
+            {user.role === "student" ? (
               <>
-                <Save className="size-4" />
-                {t("profile.save")}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {t("profile.school")}
+                  </label>
+                  <div className="relative">
+                    <School className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.school}
+                      onChange={(e) => setFormData({ ...formData, school: e.target.value })}
+                      disabled={!isEditing}
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {t("profile.grade")}
+                  </label>
+                  <div className="relative">
+                    <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                    <select
+                      value={formData.grade}
+                      onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                      disabled={!isEditing}
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 appearance-none transition-all"
+                    >
+                      <option value="">Select grade</option>
+                      {[9, 10, 11, 12].map((g) => (
+                        <option key={g} value={g}>
+                          Grade {g}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </>
             ) : (
-              <>
-                {t("profile.edit")}
-              </>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  {t("profile.organization")}
+                </label>
+                <div className="relative">
+                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={formData.organization}
+                    onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                    disabled={!isEditing}
+                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
+                  />
+                </div>
+              </div>
             )}
-          </button>
-        </div>
-      </div>
-
-      {/* Profile Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-        {/* Avatar Section */}
-        <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
-          <div className="size-24 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-            <User className="size-12 text-purple-600 dark:text-purple-400" />
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.name}</h2>
-            <p className="text-gray-600 dark:text-gray-400 capitalize">{user.role}</p>
-            <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">{user.email}</p>
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Form Fields */}
-        <div className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <User className="size-4" />
-              {t("profile.name")}
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              disabled={!isEditing}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-            />
-          </div>
+        {/* Account Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-violet-200/50 dark:border-violet-800/50 shadow-lg"
+        >
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Account Settings
+          </h2>
 
-          {/* Email */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <Mail className="size-4" />
-              {t("profile.email")}
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              disabled={!isEditing}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <Phone className="size-4" />
-              {t("profile.phone")}
-            </label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              disabled={!isEditing}
-              placeholder="+976 xxxx xxxx"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-            />
-          </div>
-
-          {/* Conditional fields for students */}
-          {user.role === "student" && (
-            <>
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  <School className="size-4" />
-                  {t("profile.school")}
-                </label>
-                <input
-                  type="text"
-                  value={formData.school}
-                  onChange={(e) => setFormData({ ...formData, school: e.target.value })}
-                  disabled={!isEditing}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  <GraduationCap className="size-4" />
-                  {t("profile.grade")}
-                </label>
-                <input
-                  type="text"
-                  value={formData.grade}
-                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                  disabled={!isEditing}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-                />
-              </div>
-            </>
-          )}
-
-          {/* Conditional fields for organizers */}
-          {user.role === "organizer" && (
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <Building className="size-4" />
-                {t("profile.organization")}
-              </label>
-              <input
-                type="text"
-                value={formData.organization}
-                onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                disabled={!isEditing}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-              />
-            </div>
-          )}
-
-          {/* Address */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              <MapPin className="size-4" />
-              {t("profile.address")}
-            </label>
-            <textarea
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              disabled={!isEditing}
-              rows={3}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent disabled:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
-            />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        {isEditing && (
-          <div className="flex gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleSave}
-              className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              {t("profile.saveChanges")}
+          <div className="space-y-4">
+            <button className="w-full px-6 py-4 bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 rounded-2xl font-semibold hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-all text-left">
+              Change Password
             </button>
-            <button
-              onClick={() => {
-                setIsEditing(false);
-                setFormData({
-                  name: user.name,
-                  email: user.email,
-                  phone: user.phone || "",
-                  school: user.school || "",
-                  grade: user.grade || "",
-                  organization: user.organization || "",
-                  address: user.address || "",
-                });
-              }}
-              className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
-              {t("profile.cancel")}
+            <button className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-left">
+              Notification Preferences
+            </button>
+            <button className="w-full px-6 py-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-2xl font-semibold hover:bg-red-100 dark:hover:bg-red-900/50 transition-all text-left">
+              Delete Account
             </button>
           </div>
-        )}
+        </motion.div>
       </div>
     </div>
   );

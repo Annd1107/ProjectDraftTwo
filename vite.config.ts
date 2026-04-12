@@ -1,10 +1,23 @@
 
   import { defineConfig } from 'vite';
-  import react from '@vitejs/plugin-react-swc';
+  import react from '@vitejs/plugin-react';
+  import tailwindcss from '@tailwindcss/vite';
   import path from 'path';
 
+function figmaAssetResolver() {
+  return {
+    name: 'figma-asset-resolver',
+    resolveId(id) {
+      if (id.startsWith('figma:asset/')) {
+        const filename = id.replace('figma:asset/', '')
+        return path.resolve(__dirname, 'src/assets', filename)
+      }
+    },
+  }
+}
+
   export default defineConfig({
-    plugins: [react()],
+    plugins: [react(), tailwindcss(), figmaAssetResolver()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
@@ -17,7 +30,6 @@
         'next-themes@0.4.6': 'next-themes',
         'lucide-react@0.487.0': 'lucide-react',
         'input-otp@1.4.2': 'input-otp',
-        'figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png': path.resolve(__dirname, './src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png'),
         'embla-carousel-react@8.6.0': 'embla-carousel-react',
         'cmdk@1.1.1': 'cmdk',
         'class-variance-authority@0.7.1': 'class-variance-authority',
@@ -52,7 +64,7 @@
     },
     build: {
       target: 'esnext',
-      outDir: 'dist',
+      outDir: 'build',
     },
     server: {
       port: 3000,
