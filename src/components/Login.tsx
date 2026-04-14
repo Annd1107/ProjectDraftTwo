@@ -1,11 +1,9 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { Mail, Lock, ArrowRight, Trophy, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
-import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -16,6 +14,7 @@ export function Login() {
   const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const logo = "src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +110,40 @@ export function Login() {
                   </button>
                 </div>
               </div>
+              <div className="space-y-4">
+              {/* Role Input */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  {t("login.role")}
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="student"
+                      checked={role === "student"}
+                      onChange={(e) => setRole(e.target.value as "student" | "organizer")}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-gray-700 dark:text-gray-300">{t("login.student") || "Student"}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="role"
+                      value="organizer"
+                      checked={role === "organizer"}
+                      onChange={(e) => setRole(e.target.value as "student" | "organizer")}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-gray-700 dark:text-gray-300">{t("login.organizer") || "Organizer"}</span>
+                  </label>
+                </div>
+              </div>
             </div>
+            </div>
+            
 
             {/* Demo Accounts */}
             <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 rounded-2xl p-4">

@@ -4,7 +4,6 @@ import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, User
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
-import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
 export function Signup() {
   const [role, setRole] = useState<"student" | "organizer">("student");
@@ -15,46 +14,52 @@ export function Signup() {
   const [school, setSchool] = useState("");
   const [grade, setGrade] = useState("");
   const [organization, setOrganization] = useState("");
+  const [birthdate, setBirthdate] = useState("");
   const [error, setError] = useState("");
 
-  const { signup } = useAuth();
+  const { signup  } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    const userData: any = {
-      email,
-      password,
-      name,
-      role,
-    };
+    try {
+      const userData: any = {
+        email,
+        password,
+        name,
+        role,
+      };
 
-    if (role === "student") {
-      userData.school = school;
-      userData.grade = parseInt(grade); // Convert grade string to number
-    } else {
-      userData.organization = organization;
-    }
+      if (role === "student") {
+        userData.school = school;
+        userData.grade = parseInt(grade);
+        userData.birthdate = birthdate; 
+      } else {
+        userData.organization = organization;
+      }
 
-    const success = await signup(userData);
-    if (success) {
-      // Redirect to home page after successful signup
-      navigate("/");
-    } else {
-      setError(t("signup.error"));
+        
+      const success = await signup(userData);
+
+      if (success) {
+        navigate("/");
+      } else {
+        setError("Signup failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
     }
   };
-
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Image & Content */}
       <div className="hidden lg:flex items-center justify-center p-16 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
-        
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -113,7 +118,7 @@ export function Signup() {
           {/* Logo and Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-6">
-              <img src={logo} alt="Logo" className="size-12 rounded-xl shadow-lg" />
+              <img src={"src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png"} alt="Logo" className="size-12 rounded-xl shadow-lg" />
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                 TemtseenPortal
               </span>
@@ -147,18 +152,15 @@ export function Signup() {
                 <button
                   type="button"
                   onClick={() => setRole("student")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    role === "student"
-                      ? "border-violet-600 bg-violet-50 dark:bg-violet-950/30"
-                      : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
-                  }`}
+                  className={`p-4 rounded-2xl border-2 transition-all ${role === "student"
+                    ? "border-violet-600 bg-violet-50 dark:bg-violet-950/30"
+                    : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
+                    }`}
                 >
-                  <Users className={`size-6 mx-auto mb-2 ${
-                    role === "student" ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
-                  }`} />
-                  <span className={`block text-sm font-semibold ${
-                    role === "student" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
-                  }`}>
+                  <Users className={`size-6 mx-auto mb-2 ${role === "student" ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
+                    }`} />
+                  <span className={`block text-sm font-semibold ${role === "student" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
+                    }`}>
                     Student
                   </span>
                 </button>
@@ -166,18 +168,15 @@ export function Signup() {
                 <button
                   type="button"
                   onClick={() => setRole("organizer")}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    role === "organizer"
-                      ? "border-violet-600 bg-violet-50 dark:bg-violet-950/30"
-                      : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
-                  }`}
+                  className={`p-4 rounded-2xl border-2 transition-all ${role === "organizer"
+                    ? "border-violet-600 bg-violet-50 dark:bg-violet-950/30"
+                    : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
+                    }`}
                 >
-                  <Trophy className={`size-6 mx-auto mb-2 ${
-                    role === "organizer" ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
-                  }`} />
-                  <span className={`block text-sm font-semibold ${
-                    role === "organizer" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
-                  }`}>
+                  <Trophy className={`size-6 mx-auto mb-2 ${role === "organizer" ? "text-violet-600 dark:text-violet-400" : "text-gray-400"
+                    }`} />
+                  <span className={`block text-sm font-semibold ${role === "organizer" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
+                    }`}>
                     Organizer
                   </span>
                 </button>
@@ -266,7 +265,17 @@ export function Signup() {
                       />
                     </div>
                   </div>
-
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Birthdate
+                    </label>
+                    <input
+                      type="date"
+                      onChange={(e) => setBirthdate(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       {t("signup.grade")}

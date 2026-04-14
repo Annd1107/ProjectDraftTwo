@@ -1,179 +1,163 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { setCookie, getCookie, deleteCookie, setLocalStorage, getLocalStorage } from "./storage-utils";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { supabase } from "../utils/supabase";
 
-export interface User {
-  id: string;
-  name: string;
+interface UserProfile {
+  id: string; // 👈 IMPORTANT: match your DB type (int8)
   email: string;
+  name: string;
   role: "student" | "organizer";
   school?: string;
   grade?: number;
+  birthdate?: string;
   organization?: string;
-  phone?: string;
-  address?: string;
+  revenue?: number;
 }
 
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string, role: "student" | "organizer") => Promise<boolean>;
-  signup: (data: SignupData) => Promise<boolean>;
+  user: UserProfile | null;
+  signup: (data: any) => Promise<boolean>;
+  login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
 
-interface SignupData {
-  name: string;
-  email: string;
-  password: string;
-  role: "student" | "organizer";
-  school?: string;
-  grade?: number;
-  organization?: string;
-  phone?: string;
-  address?: string;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users for demonstration
-const initialMockUsers: User[] = [
-  {
-    id: "1",
-    name: "Test Student",
-    email: "student@test.com",
-    role: "student",
-    school: "Test High School",
-    grade: 11,
-  },
-  {
-    id: "2",
-    name: "Test Organizer",
-    email: "organizer@test.com",
-    role: "organizer",
-    organization: "Test Organization",
-  },
-  {
-    id: "3",
-    name: "Болд Батаа",
-    email: "bold@student.mn",
-    role: "student",
-    school: "1-р сургууль",
-    grade: 11,
-  },
-  {
-    id: "4",
-    name: "Сарнай Дорж",
-    email: "sarnai@organizer.mn",
-    role: "organizer",
-    organization: "Математикийн Холбоо",
-  },
-];
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize from storage on mount
+  // 🔍 load session
   useEffect(() => {
-    const loadUserData = () => {
-      // Load users from localStorage or use defaults
-      const storedUsers = getLocalStorage("temtseen_users");
-      if (storedUsers && Array.isArray(storedUsers)) {
-        setUsers(storedUsers);
-      } else {
-        setUsers(initialMockUsers);
-        setLocalStorage("temtseen_users", initialMockUsers);
-      }
-
-      // Check for existing session
-      const sessionData = getCookie("temtseen_session");
-      if (sessionData) {
-        try {
-          const userData = JSON.parse(decodeURIComponent(sessionData));
-          setUser(userData);
-        } catch (error) {
-          console.error("Error parsing session data:", error);
-          deleteCookie("temtseen_session");
-        }
-      }
-      
-      setIsLoading(false);
-    };
-
-    loadUserData();
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+    setIsLoading(false);
   }, []);
 
-  // Save users to localStorage whenever they change
-  useEffect(() => {
-    if (users.length > 0) {
-      setLocalStorage("temtseen_users", users);
-    }
-  }, [users]);
+  // -------------------------
+  // SIGNUP (NO SUPABASE AUTH)
+  // -------------------------
+  const signup = async (data: any): Promise<boolean> => {
+    try {
+      // 1. check if email exists (students)
+      const { data: studentExists } = await supabase
+        .from("Students")
+        .select("email")
+        .eq("email", data.email)
+        .maybeSingle();
 
-  const login = async (email: string, password: string, role: "student" | "organizer"): Promise<boolean> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const foundUser = users.find(u => u.email === email && u.role === role);
-    if (foundUser) {
-      setUser(foundUser);
-      // Save session to cookie (expires in 7 days)
-      setCookie("temtseen_session", encodeURIComponent(JSON.stringify(foundUser)), 7);
+      const { data: orgExists } = await supabase
+        .from("Organizers")
+        .select("email")
+        .eq("email", data.email)
+        .maybeSingle();
+
+      if (studentExists || orgExists) {
+        console.error("Email already exists");
+        return false;
+      }
+
+      // 2. insert user
+      if (data.role === "student") {
+        const { data: inserted, error } = await supabase
+          .from("Students")
+          .insert({
+            id: Math.random().toString(36).substr(2, 9), 
+            email: data.email,
+            password: data.password, // ⚠️ plain text (not secure but your choice)
+            name: data.name,
+            school: data.school,
+            grade: data.grade,
+            birthdate: data.birthdate,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error(error);
+          return false;
+        }
+
+        setUser({ ...inserted, role: "student" });
+        localStorage.setItem("user", JSON.stringify(inserted));
+        return true;
+      }
+
+      const { data: inserted, error } = await supabase
+        .from("Organizers")
+        .insert({
+          id: Math.random().toString(36).substr(2, 9),
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          organization: data.organization,
+          revenue: 0,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error(error);
+        return false;
+      }
+
+      setUser({ ...inserted, role: "organizer" });
+      localStorage.setItem("user", JSON.stringify(inserted));
       return true;
+    } catch (err) {
+      console.error(err);
+      return false;
     }
-    return false;
   };
 
-  const signup = async (data: SignupData): Promise<boolean> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Check if user already exists
-    const existingUser = users.find(u => u.email === data.email);
-    if (existingUser) {
+  // -------------------------
+  // LOGIN (manual check)
+  // -------------------------
+  const login = async (
+    email: string,
+    password: string,
+    role: string
+  ): Promise<boolean> => {
+    const table = role === "student" ? "Students" : "Organizers";
+
+    const { data, error } = await supabase
+      .from(table)
+      .select("*")
+      .eq("email", email)
+      .eq("password", password)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error("Invalid login");
       return false;
     }
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      school: data.school,
-      grade: data.grade,
-      organization: data.organization,
-      phone: data.phone,
-      address: data.address,
-    };
-    
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    setUser(newUser);
-    
-    // Save session to cookie
-    setCookie("temtseen_session", encodeURIComponent(JSON.stringify(newUser)), 7);
+    const userData = { ...data, role };
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     return true;
   };
 
+  // -------------------------
+  // LOGOUT
+  // -------------------------
   const logout = () => {
     setUser(null);
-    deleteCookie("temtseen_session");
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, signup, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
 }

@@ -42,7 +42,7 @@ export function Root() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30 transition-colors justify-between flex flex-col">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-violet-200/50 dark:border-violet-800/50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -244,7 +244,7 @@ export function Root() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-violet-200/50 dark:border-violet-800/50 mt-12">
+      <footer className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-violet-200/50 dark:border-violet-800/50 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>

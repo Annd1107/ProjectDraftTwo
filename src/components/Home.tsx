@@ -1,38 +1,17 @@
 import { Link } from "react-router";
-import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, Star, CheckCircle2, Sparkles, GraduationCap, Target } from "lucide-react";
+import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, Star, TrendingUp, CheckCircle2, Sparkles, GraduationCap, Target } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
-import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
+
 import { motion } from "motion/react";
-import { useState, useEffect } from 'react'
-import { supabase } from '../utils/supabase/supabase'
 
 const studentImg = "https://images.unsplash.com/photo-1614492898637-435e0f87cef8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwc3R1ZHlpbmclMjBjb21wZXRpdGlvbiUyMGZvY3VzZWR8ZW58MXx8fHwxNzczMjA0ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const trophyImg = "https://images.unsplash.com/photo-1764874299025-d8b2251f307d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cm9waHklMjBhd2FyZCUyMGNlcmVtb255JTIwY2VsZWJyYXRpb258ZW58MXx8fHwxNzczMjA0ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
-
-
-
 export function Home() {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const [todos, setTodos] = useState([])
-
-    useEffect(() => {
-      async function getTodos() {
-        const { data, error } = await supabase.from('student').select()
-
-        if (error) {
-          console.error(error)
-          
-        } else {
-          setTodos(data)
-          console.log(data)
-        }
-      }
-
-      getTodos()
-    }, [])
+  const logo = "src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
   return (
     <div className="min-h-screen">
@@ -41,7 +20,6 @@ export function Home() {
         {/* Left Side - Content */}
         <div className="relative flex items-center p-8 lg:p-16 bg-gradient-to-br from-white via-violet-50/30 to-purple-50/50 dark:from-gray-900 dark:via-purple-950/30 dark:to-violet-950/50">
           <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
-              
             {/* Floating Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -53,23 +31,6 @@ export function Home() {
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Mongolia's Premier Olympiad Platform
               </span>
-                            <div>
-      {todos.map((todo) => (
-        <div>
-        <p key={todo.id}>{todo.username}</p>
-        <button onClick={() => {
-          supabase.from('student').insert([{ username: 'Lalar', email: 'lalar@example.com' , password : 'password123' , class: '10A' , School: 'Lalar High School' , birthdate: '2005-05-15', phone: '12346930' }])
-          .then(({ data, error }) => {
-            if (error) {
-              console.error(error)
-            } else {
-              console.log(data)
-            }
-          })
-        }}>Add</button>
-        </div>
-      ))}
-    </div>
             </motion.div>
 
             {/* Main Heading */}

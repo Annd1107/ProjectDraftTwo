@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Trophy, LogOut, Home, User, Info, LayoutDashboard, Globe, Bell, Moon, Sun, Menu, X, BookOpen, HelpCircle, Phone } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
@@ -12,13 +11,13 @@ export function Navigation() {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const router = useRouter();
-  const pathname = usePathname();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-    router.push("/");
+    navigate("/");
     setMobileMenuOpen(false);
   };
 
@@ -27,7 +26,7 @@ export function Navigation() {
   };
 
   const isActive = (path: string) => {
-    return pathname === path;
+    return location.pathname === path;
   };
 
   const closeMobileMenu = () => {
@@ -40,7 +39,7 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group" onClick={closeMobileMenu}>
+            <Link to="/" className="flex items-center gap-3 group" onClick={closeMobileMenu}>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <div className="relative h-10 w-10 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center shadow-lg">
@@ -58,7 +57,7 @@ export function Navigation() {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">
               <Link 
-                href="/" 
+                to="/" 
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                   isActive("/")
                     ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
@@ -70,7 +69,7 @@ export function Navigation() {
               </Link>
               
               <Link 
-                href="/about" 
+                to="/about" 
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                   isActive("/about")
                     ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
@@ -81,33 +80,9 @@ export function Navigation() {
                 <span className="font-medium">{t("nav.about")}</span>
               </Link>
 
-              <Link 
-                href="/tournaments" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                  isActive("/tournaments")
-                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                <Trophy className="size-4" />
-                <span className="font-medium">Тэмцээнүүд</span>
-              </Link>
-
-              <Link 
-                href="/faq" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                  isActive("/faq")
-                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                <HelpCircle className="size-4" />
-                <span className="font-medium">FAQ</span>
-              </Link>
-
               {user && (
                 <Link 
-                  href={user.role === "organizer" ? "/organizer" : "/student"} 
+                  to={user.role === "organizer" ? "/organizer" : "/student"} 
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                     isActive("/student") || isActive("/organizer")
                       ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
@@ -125,7 +100,7 @@ export function Navigation() {
               {user && (
                 <>
                   <Link 
-                    href="/notifications" 
+                    to="/notifications" 
                     className="hidden sm:flex relative p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                     title={t("nav.notifications")}
                   >
@@ -133,7 +108,7 @@ export function Navigation() {
                     <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                   </Link>
                   <Link 
-                    href="/profile" 
+                    to="/profile" 
                     className="hidden sm:flex p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                     title={t("nav.profile")}
                   >
@@ -169,13 +144,13 @@ export function Navigation() {
               ) : (
                 <>
                   <Link 
-                    href="/login" 
+                    to="/login" 
                     className="hidden sm:inline-flex px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all font-medium text-sm"
                   >
                     {t("nav.login")}
                   </Link>
                   <Link 
-                    href="/signup" 
+                    to="/signup" 
                     className="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg font-medium text-sm"
                   >
                     {t("nav.signup")}
@@ -221,7 +196,7 @@ export function Navigation() {
               {/* Navigation Links */}
               <div className="space-y-2">
                 <Link 
-                  href="/" 
+                  to="/" 
                   onClick={closeMobileMenu}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive("/")
@@ -234,7 +209,7 @@ export function Navigation() {
                 </Link>
                 
                 <Link 
-                  href="/about" 
+                  to="/about" 
                   onClick={closeMobileMenu}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive("/about")
@@ -246,51 +221,12 @@ export function Navigation() {
                   <span className="font-medium">{t("nav.about")}</span>
                 </Link>
 
-                <Link 
-                  href="/tournaments" 
-                  onClick={closeMobileMenu}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive("/tournaments")
-                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <Trophy className="size-5" />
-                  <span className="font-medium">Тэмцээнүүд</span>
-                </Link>
-
-                <Link 
-                  href="/faq" 
-                  onClick={closeMobileMenu}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive("/faq")
-                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <HelpCircle className="size-5" />
-                  <span className="font-medium">FAQ</span>
-                </Link>
-
-                <Link 
-                  href="/contact" 
-                  onClick={closeMobileMenu}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive("/contact")
-                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <Phone className="size-5" />
-                  <span className="font-medium">Холбоо барих</span>
-                </Link>
-
                 {user && (
                   <>
                     <div className="h-px bg-gray-200 dark:bg-gray-800 my-4"></div>
                     
                     <Link 
-                      href={user.role === "organizer" ? "/organizer" : "/student"} 
+                      to={user.role === "organizer" ? "/organizer" : "/student"} 
                       onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                         isActive("/student") || isActive("/organizer")
@@ -303,7 +239,7 @@ export function Navigation() {
                     </Link>
 
                     <Link 
-                      href="/notifications" 
+                      to="/notifications" 
                       onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative ${
                         isActive("/notifications")
@@ -317,7 +253,7 @@ export function Navigation() {
                     </Link>
 
                     <Link 
-                      href="/profile" 
+                      to="/profile" 
                       onClick={closeMobileMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                         isActive("/profile")
@@ -356,14 +292,14 @@ export function Navigation() {
                 ) : (
                   <div className="space-y-2">
                     <Link 
-                      href="/login" 
+                      to="/login" 
                       onClick={closeMobileMenu}
                       className="w-full flex items-center justify-center px-4 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all font-medium"
                     >
                       {t("nav.login")}
                     </Link>
                     <Link 
-                      href="/signup" 
+                      to="/signup" 
                       onClick={closeMobileMenu}
                       className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg font-medium"
                     >

@@ -1,18 +1,25 @@
 import { useState, useEffect } from "react";
 import { X, CreditCard, Building, AlertCircle, CheckCircle } from "lucide-react";
+import { supabase } from "../utils/supabase";
+import { useAuth } from "../lib/auth-context";
+import { updateRevenue } from "../services/organizerService";
 
 interface PaymentModalProps {
   onClose: () => void;
   onConfirm: () => void;
   tournamentTitle: string;
   fee: number;
+
+  olympiadId: string;
+  organizerId: string;
 }
 
-export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee }: PaymentModalProps) {
+export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympiadId, organizerId }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "qpay">("qpay");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const { user } = useAuth();
 
   // Generate a random QR code on mount or when payment method changes to qpay
   useEffect(() => {
@@ -29,20 +36,43 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee }: Payme
   };
 
   const handlePayment = async () => {
-    setIsProcessing(true);
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+  if (!user) return;
+
+  setIsProcessing(true);
+
+  // simulate delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // ✅ SAVE TO SUPABASE
+  const { error } = await supabase.from("payment").insert({
+    id:Math.random().toString(36).substr(2, 9),
+    student_id: user.id,
+    olympiad_id: olympiadId,
+    total_fee: fee,
+    paid_date: new Date().toISOString(),
+    OrganizerId: organizerId,
+    payment_method: paymentMethod,
+    status: "paid",
+  });
+
+  if (error) {
+    console.error(error);
+    alert("Төлбөр хадгалах үед алдаа гарлаа");
     setIsProcessing(false);
-    setIsSuccess(true);
-    
-    // Wait a moment to show success, then confirm
-    setTimeout(() => {
-      onConfirm();
-      setIsSuccess(false);
-    }, 1500);
-  };
+    return;
+  }
+  // Update organizer's revenue
+  await updateRevenue(organizerId, fee);
+  
+
+  setIsProcessing(false);
+  setIsSuccess(true);
+
+  setTimeout(() => {
+    onConfirm();
+    setIsSuccess(false);
+  }, 1500);
+};
 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">

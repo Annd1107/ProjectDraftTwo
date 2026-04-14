@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import { AuthProvider } from "../lib/auth-context";
-import { TournamentProvider } from "../lib/tournament-context";
+import { OlympiadProvider } from "../lib/tournament-context";
 import { LanguageProvider } from "../lib/language-context";
 import { ThemeProvider } from "../lib/theme-context";
 import { AchievementProvider } from "../lib/achievement-context";
@@ -29,7 +29,7 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              <TournamentProvider>
+              <OlympiadProvider>
                 <AchievementProvider>
                   <div className="flex flex-col min-h-screen">
                     <Navigation />
@@ -121,7 +121,7 @@ export default function RootLayout({
                     </footer>
                   </div>
                 </AchievementProvider>
-              </TournamentProvider>
+              </OlympiadProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

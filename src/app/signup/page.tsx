@@ -20,8 +20,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-
   
   const { signup } = useAuth();
   const { t } = useLanguage();

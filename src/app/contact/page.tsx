@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 export default function Contact() {
   const [formData, setFormData] = useState({

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { User, Lock, AlertCircle, Trophy, ArrowLeft } from "lucide-react";
 import { useAuth } from "../../lib/auth-context";
 import { useLanguage } from "../../lib/language-context";
-import { supabase } from '../../lib/supabase';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,17 +13,13 @@ export default function Login() {
   const [role, setRole] = useState<"student" | "organizer">("student");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   
   const { login } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-         const { data, error } = await supabase.auth.signInWithOtp({ email });
-    if (error) console.error('Error logging in:', error);
-    else console.log('User logged in:', data);
     setError("");
     setLoading(true);
 

@@ -1,93 +1,69 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Calendar, MapPin, Users, Trophy, Edit, Trash2, FileText, Upload, BarChart3, TrendingUp, DollarSign, X, Sparkles } from "lucide-react";
+import { createOlympiad, deleteOlympiad, getOlympiads } from "../lib/tournament-api";
 import { useAuth } from "../lib/auth-context";
-import { useTournaments } from "../lib/tournament-context";
-import { useLanguage } from "../lib/language-context";
+
+import {
+  Plus, Calendar, MapPin, Users, Trophy,
+  Trash2, DollarSign, Upload, X, Sparkles,
+  Award
+} from "lucide-react";
+
 import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "../lib/language-context";
+import { payment_data, updateRevenue } from "../services/organizerService";
+import { supabase } from "../utils/supabase";
 
 export function OrganizerDashboard() {
-  const { user } = useAuth();
-  const { getOrganizerTournaments, addTournament, deleteTournament } = useTournaments();
-  const { t } = useLanguage();
-  const navigate = useNavigate();
-  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Form state
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [olympiads, setOlympiads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const { t } = useLanguage();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [maxParticipants, setMaxParticipants] = useState(100);
-  const [registrationFee, setRegistrationFee] = useState(10000);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [fee, setFee] = useState(10000);
+  const [pdf, setPdf] = useState<File | null>(null);
   const [pdfFileName, setPdfFileName] = useState("");
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     if (!user || user.role !== "organizer") {
       navigate("/login");
+      return;
     }
-  }, [user, navigate]);
+    loadData();
 
-  if (!user || user.role !== "organizer") {
-    return null;
-  }
+  }, [user]);
+  useEffect(() => {
+    if (!user) return;
 
-  const myTournaments = getOrganizerTournaments(user.id);
+    const loadPayments = async () => {
+      const res = await payment_data(user.id);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const tournamentData: any = {
-      title,
-      description,
-      category,
-      date,
-      location,
-      maxParticipants,
-      registrationFee,
-      organizerId: user.id,
-      organizerName: user.name,
-      organizerOrganization: user.organization || "",
+      const revenue =
+        res?.data?.reduce((sum: number, p: any) => sum + p.total_fee, 0) || 0;
+
+      setTotalRevenue(revenue);
+      await updateRevenue(user.id, revenue);
     };
 
-    if (pdfFile) {
-      tournamentData.preparationMaterial = {
-        fileName: pdfFile.name,
-        fileUrl: URL.createObjectURL(pdfFile),
-      };
-    }
+    loadPayments();
+  }, [user]);
 
-    addTournament(tournamentData);
-
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setCategory("");
-    setDate("");
-    setLocation("");
-    setMaxParticipants(100);
-    setRegistrationFee(10000);
-    setPdfFile(null);
-    setPdfFileName("");
-    setShowAddForm(false);
-  };
-
-  const handleDelete = (tournamentId: string) => {
-    if (confirm(t("organizer.confirmDelete"))) {
-      deleteTournament(tournamentId);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === "application/pdf") {
-      setPdfFile(file);
-      setPdfFileName(file.name);
-    } else {
-      alert("Please upload a PDF file");
-    }
+  const loadData = async () => {
+    setLoading(true);
+    const data = await getOlympiads();
+    setOlympiads(data.filter(o => o.organizer_id === user?.id));
+    setLoading(false);
   };
 
   const categories = [
@@ -99,11 +75,102 @@ export function OrganizerDashboard() {
     { mn: "Программчлал", en: "Programming" },
     { mn: "Бусад", en: "Other" },
   ];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "application/pdf") {
+      setPdf(file);
+      setPdfFileName(file.name);
+    } else {
+      alert("Please upload a PDF file");
+    }
+  };
 
-  // Calculate stats
-  const totalParticipants = myTournaments.reduce((sum, t) => sum + t.registrations.length, 0);
-  const totalRevenue = myTournaments.reduce((sum, t) => sum + (t.registrations.length * t.registrationFee), 0);
-  const upcomingEvents = myTournaments.filter(t => new Date(t.date) > new Date()).length;
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    let prep = null;
+
+    if (pdf) {
+      const filePath = `materials/${Date.now()}_${pdf.name}`;
+
+      const { error } = await supabase.storage
+        .from("pdfs") // ⚠️ must match your bucket name
+        .upload(filePath, pdf);
+
+      if (error) {
+        console.error("Upload error:", error.message);
+        alert("File upload failed");
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("pdfs")
+        .getPublicUrl(filePath);
+
+      prep = {
+        fileName: pdf.name,
+        fileUrl: data.publicUrl,
+      };
+    }
+
+    await createOlympiad({
+      title,
+      description,
+      category,
+      date,
+      location,
+      registration_fee: fee,
+      max_participants: maxParticipants,
+      organizer_id: user?.id || "",
+      organizer_name: user?.name || "",
+      organizer_organization: user?.organization || "",
+      preparation_material: prep,
+    });
+
+    setShowForm(false);
+    reset();
+    loadData();
+  };
+  const handleDownload = async (url: string, filename: string) => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename || "file.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const reset = () => {
+    setTitle("");
+    setDescription("");
+    setCategory("");
+    setDate("");
+    setLocation("");
+    setFee(10000);
+    setMaxParticipants(100);
+    setPdf(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteOlympiad(id);
+    loadData();
+  };
+
+  const totalParticipants = olympiads.reduce(
+    (sum, o) => sum + o.registered_count,
+    0
+  );
+
+
+
+  const upcomingEvents = olympiads.filter(
+    o => new Date(o.date) > new Date()
+  ).length;
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -121,15 +188,15 @@ export function OrganizerDashboard() {
                 <span>Organizer Portal</span>
               </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-white">
-                {t("organizer.welcome")}, {user.name}!
+                {t("organizer.welcome")}, {user?.name}!
               </h1>
               <p className="text-purple-100 text-lg">
-                {user.organization || "Independent Organizer"}
+                {user?.organization || "Independent Organizer"}
               </p>
             </div>
-            
+
             <button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => setShowForm(true)}
               className="group inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 rounded-xl font-semibold hover:bg-purple-50 transition-all"
             >
               <Plus className="size-5" />
@@ -144,7 +211,7 @@ export function OrganizerDashboard() {
                 <Trophy className="size-5 text-white" />
                 <span className="text-white/80 text-sm">Total Events</span>
               </div>
-              <div className="text-3xl font-bold text-white">{myTournaments.length}</div>
+              <div className="text-3xl font-bold text-white">{olympiads.length}</div>
             </div>
 
             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
@@ -176,10 +243,10 @@ export function OrganizerDashboard() {
         {/* Events Section */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            My Events ({myTournaments.length})
+            My Events ({olympiads.length})
           </h2>
 
-          {myTournaments.length === 0 ? (
+          {olympiads.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -193,7 +260,7 @@ export function OrganizerDashboard() {
                 Create your first tournament to get started
               </p>
               <button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => setShowForm(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
               >
                 <Plus className="size-5" />
@@ -202,13 +269,13 @@ export function OrganizerDashboard() {
             </motion.div>
           ) : (
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {myTournaments.map((tournament, index) => {
-                const isPast = new Date(tournament.date) < new Date();
-                const participationRate = (tournament.registrations.length / tournament.maxParticipants) * 100;
-                
+              {olympiads.map((olympiad, index) => {
+                const isPast = new Date(olympiad.date) < new Date();
+                const participationRate = (olympiad.registrations.length / olympiad.max_participants) * 100;
+
                 return (
                   <motion.div
-                    key={tournament.id}
+                    key={olympiad.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -216,14 +283,13 @@ export function OrganizerDashboard() {
                   >
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`p-3 rounded-2xl bg-gradient-to-br ${
-                        isPast ? "from-gray-400 to-gray-600" : "from-fuchsia-500 to-purple-600"
-                      }`}>
+                      <div className={`p-3 rounded-2xl bg-gradient-to-br ${isPast ? "from-gray-400 to-gray-600" : "from-fuchsia-500 to-purple-600"
+                        }`}>
                         <Trophy className="size-6 text-white" />
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleDelete(tournament.id)}
+                          onClick={() => handleDelete(olympiad.id)}
                           className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400 transition-colors"
                         >
                           <Trash2 className="size-4" />
@@ -233,22 +299,35 @@ export function OrganizerDashboard() {
 
                     {/* Content */}
                     <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                      {tournament.title}
+                      {olympiad.title}
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
-                      {tournament.description}
+                      {olympiad.description}
                     </p>
 
                     {/* Details */}
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Calendar className="size-4 text-purple-600 dark:text-purple-400" />
-                        <span>{new Date(tournament.date).toLocaleDateString()}</span>
+                        <span>{new Date(olympiad.date).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <MapPin className="size-4 text-purple-600 dark:text-purple-400" />
-                        <span>{tournament.location}</span>
+                        <span>{olympiad.location}</span>
                       </div>
+                      {olympiad.preparation_material && (
+                        <button
+                          onClick={() =>
+                            handleDownload(
+                              olympiad.preparation_material.fileUrl,
+                              olympiad.preparation_material.fileName
+                            )
+                          }
+                          className="text-violet-600 hover:underline"
+                        >
+                          Download Preparation Material
+                        </button>
+                      )}
                     </div>
 
                     {/* Progress Bar */}
@@ -256,7 +335,7 @@ export function OrganizerDashboard() {
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-gray-600 dark:text-gray-400">Participants</span>
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {tournament.registrations.length}/{tournament.maxParticipants}
+                          {olympiad.registrations.length}/{olympiad.max_participants}
                         </span>
                       </div>
                       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -272,14 +351,13 @@ export function OrganizerDashboard() {
                       <div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Revenue</div>
                         <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                          ₮{((tournament.registrations.length * tournament.registrationFee) / 1000).toFixed(0)}K
+                          ₮{((olympiad.registrations.length * olympiad.registration_fee) / 1000).toFixed(0)}K
                         </div>
                       </div>
-                      <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        isPast 
-                          ? "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400"
-                          : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                      }`}>
+                      <div className={`px-3 py-1 rounded-full text-sm font-semibold ${isPast
+                        ? "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400"
+                        : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        }`}>
                         {isPast ? "Completed" : "Active"}
                       </div>
                     </div>
@@ -293,13 +371,13 @@ export function OrganizerDashboard() {
 
       {/* Add Tournament Modal */}
       <AnimatePresence>
-        {showAddForm && (
+        {showForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowAddForm(false)}
+            onClick={() => setShowForm(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -313,14 +391,14 @@ export function OrganizerDashboard() {
                   Create New Event
                 </h2>
                 <button
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => setShowForm(false)}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
                 >
                   <X className="size-6" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleCreate} className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Event Title *
@@ -417,8 +495,8 @@ export function OrganizerDashboard() {
                     </label>
                     <input
                       type="number"
-                      value={registrationFee}
-                      onChange={(e) => setRegistrationFee(Number(e.target.value))}
+                      value={fee}
+                      onChange={(e) => setFee(Number(e.target.value))}
                       min="0"
                       step="1000"
                       className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
@@ -453,7 +531,7 @@ export function OrganizerDashboard() {
                 <div className="flex gap-4 pt-4">
                   <button
                     type="button"
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => setShowForm(false)}
                     className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
                   >
                     Cancel

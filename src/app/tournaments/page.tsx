@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Trophy, Calendar, MapPin, Users, Search, Filter, SlidersHorizontal, Grid3x3, List, Banknote, Tag } from "lucide-react";
-import { useTournaments } from "../../lib/tournament-context";
+import { useOlympiads } from "../../lib/tournament-context";
 import { useAuth } from "../../lib/auth-context";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function TournamentsPage() {
-  const { tournaments } = useTournaments();
+  const { olympiads } = useOlympiads();
   const { user } = useAuth();
   const router = useRouter();
   
@@ -18,16 +18,16 @@ export default function TournamentsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [priceFilter, setPriceFilter] = useState("all");
 
-  const categories = ["all", ...Array.from(new Set(tournaments.map(t => t.category)))];
+  const categories = ["all", ...Array.from(new Set(olympiads.map(o => o.category)))];
 
   // Filter and sort tournaments
-  let filteredTournaments = tournaments.filter((tournament) => {
-    const matchesSearch = tournament.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tournament.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || tournament.category === categoryFilter;
+  let filteredTournaments = olympiads.filter((olympiad) => {
+    const matchesSearch = olympiad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         olympiad.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || olympiad.category === categoryFilter;
     const matchesPrice = priceFilter === "all" || 
-                        (priceFilter === "free" && tournament.registrationFee === 0) ||
-                        (priceFilter === "paid" && tournament.registrationFee > 0);
+                        (priceFilter === "free" && olympiad.registration_fee === 0) ||
+                        (priceFilter === "paid" && olympiad.registration_fee > 0);
     
     return matchesSearch && matchesCategory && matchesPrice;
   });
@@ -38,11 +38,11 @@ export default function TournamentsPage() {
       case "date":
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       case "popular":
-        return b.registeredCount - a.registeredCount;
+        return b.registered_count - a.registered_count;
       case "price-low":
-        return a.registrationFee - b.registrationFee;
+        return a.registration_fee - b.registration_fee;
       case "price-high":
-        return b.registrationFee - a.registrationFee;
+        return b.registration_fee - a.registration_fee;
       default:
         return 0;
     }
@@ -188,9 +188,9 @@ export default function TournamentsPage() {
         ) : viewMode === "grid" ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTournaments.map((tournament) => {
-              const isFull = tournament.registeredCount >= tournament.maxParticipants;
+              const isFull = tournament.registered_count >= tournament.max_participants;
               const isPast = new Date(tournament.date) < new Date();
-              const spotsLeft = tournament.maxParticipants - tournament.registeredCount;
+              const spotsLeft = tournament.max_participants - tournament.registered_count;
 
               return (
                 <div
@@ -243,15 +243,15 @@ export default function TournamentsPage() {
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                         <Users className="size-4 flex-shrink-0" />
                         <span className="text-sm">
-                          {tournament.registeredCount} / {tournament.maxParticipants}
+                          {tournament.registered_count} / {tournament.max_participants}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-900 dark:text-white">
                         <Banknote className="size-4 flex-shrink-0" />
                         <span className="font-bold">
-                          {tournament.registrationFee === 0 
+                          {tournament.registration_fee === 0 
                             ? "Үнэгүй" 
-                            : `${tournament.registrationFee.toLocaleString()}₮`
+                            : `${tournament.registration_fee.toLocaleString()}₮`
                           }
                         </span>
                       </div>
@@ -263,14 +263,14 @@ export default function TournamentsPage() {
                         <div
                           className="bg-gradient-to-r from-purple-600 to-indigo-600 h-2 rounded-full transition-all"
                           style={{
-                            width: `${Math.min((tournament.registeredCount / tournament.maxParticipants) * 100, 100)}%`,
+                            width: `${Math.min((tournament.registered_count / tournament.max_participants) * 100, 100)}%`,
                           }}
                         />
                       </div>
                     </div>
 
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                      Зохион байгуулагч: {tournament.organizerName}
+                      Зохион байгуулагч: {tournament.organizer_name}
                     </div>
 
                     <button className="w-full px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium group-hover:shadow-lg">
@@ -284,9 +284,9 @@ export default function TournamentsPage() {
         ) : (
           <div className="space-y-4">
             {filteredTournaments.map((tournament) => {
-              const isFull = tournament.registeredCount >= tournament.maxParticipants;
+              const isFull = tournament.registered_count >= tournament.max_participants;
               const isPast = new Date(tournament.date) < new Date();
-              const spotsLeft = tournament.maxParticipants - tournament.registeredCount;
+              const spotsLeft = tournament.max_participants - tournament.registered_count;
 
               return (
                 <div
@@ -328,16 +328,16 @@ export default function TournamentsPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="size-4" />
-                          {tournament.registeredCount} / {tournament.maxParticipants}
+                          {tournament.registered_count} / {tournament.max_participants}
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col justify-between items-end">
                       <div className="text-right mb-4">
                         <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                          {tournament.registrationFee === 0 
+                          {tournament.registration_fee === 0 
                             ? "Үнэгүй" 
-                            : `${tournament.registrationFee.toLocaleString()}₮`
+                            : `${tournament.registration_fee.toLocaleString()}₮`
                           }
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
