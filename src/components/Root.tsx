@@ -4,7 +4,11 @@ import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { useTheme } from "../lib/theme-context";
 import { useState } from "react";
+<<<<<<< HEAD
 import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
+=======
+import logo from "figma:asset/logopurple.png";
+>>>>>>> ac986d4bfe5632dffabf3006bdef3da4c90b972e
 
 export function Root() {
   const { user, logout } = useAuth();

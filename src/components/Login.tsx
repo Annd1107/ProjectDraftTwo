@@ -14,7 +14,11 @@ export function Login() {
   const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+<<<<<<< HEAD
   const logo = "src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
+=======
+  const logo = "src/assets/logopurple.png";
+>>>>>>> ac986d4bfe5632dffabf3006bdef3da4c90b972e
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +130,11 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
+<<<<<<< HEAD
                     <span className="text-gray-700 dark:text-gray-300">{t("login.student") || "Student"}</span>
+=======
+                    <span className="text-gray-700 dark:text-gray-300">{"Student"}</span>
+>>>>>>> ac986d4bfe5632dffabf3006bdef3da4c90b972e
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -137,7 +145,11 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
+<<<<<<< HEAD
                     <span className="text-gray-700 dark:text-gray-300">{t("login.organizer") || "Organizer"}</span>
+=======
+                    <span className="text-gray-700 dark:text-gray-300">{ "Organizer"}</span>
+>>>>>>> ac986d4bfe5632dffabf3006bdef3da4c90b972e
                   </label>
                 </div>
               </div>
@@ -145,6 +157,7 @@ export function Login() {
             </div>
             
 
+<<<<<<< HEAD
             {/* Demo Accounts */}
             <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 rounded-2xl p-4">
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -155,6 +168,9 @@ export function Login() {
                 <p>Organizer: organizer@test.com / password</p>
               </div>
             </div>
+=======
+           
+>>>>>>> ac986d4bfe5632dffabf3006bdef3da4c90b972e
 
             {/* Submit Button */}
             <button
