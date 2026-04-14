@@ -14,7 +14,7 @@ export function Login() {
   const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const logo = "src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
+  const logo = "src/assets/logopurple.png";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +126,7 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
-                    <span className="text-gray-700 dark:text-gray-300">{t("login.student") || "Student"}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{"Student"}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -137,7 +137,7 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
-                    <span className="text-gray-700 dark:text-gray-300">{t("login.organizer") || "Organizer"}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{ "Organizer"}</span>
                   </label>
                 </div>
               </div>
@@ -145,16 +145,7 @@ export function Login() {
             </div>
             
 
-            {/* Demo Accounts */}
-            <div className="bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 rounded-2xl p-4">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Demo Accounts:
-              </p>
-              <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
-                <p>Student: student@test.com / password</p>
-                <p>Organizer: organizer@test.com / password</p>
-              </div>
-            </div>
+           
 
             {/* Submit Button */}
             <button

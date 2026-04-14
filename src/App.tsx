@@ -5,6 +5,7 @@ import { OlympiadProvider } from "./lib/tournament-context";
 import { LanguageProvider } from "./lib/language-context";
 import { ThemeProvider } from "./lib/theme-context";
 import { AchievementProvider } from "./lib/achievement-context";
+import { EventProvider } from "./lib/event-context"
 
 export default function App() {
   return (
@@ -12,9 +13,11 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
           <OlympiadProvider>
+            <EventProvider>
             <AchievementProvider>
               <RouterProvider router={router} />
             </AchievementProvider>
+            </EventProvider>
           </OlympiadProvider>
         </AuthProvider>
       </LanguageProvider>
