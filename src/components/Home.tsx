@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo} from "react";
 import { Link } from "react-router";
 import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
-  
+import { useEvents } from "../lib/event-context";
+import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
+
+
+// ==========================
+// components/OlympiadCalendar.tsx
+// ==========================
+
 const CATS = [
   { id: "math", label: "Mathematics", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
   { id: "phys", label: "Physics",     color: "#1D9E75", bg: "#E1F5EE", text: "#085041" },
@@ -14,50 +21,20 @@ const CATS = [
   { id: "bio",  label: "Biology",     color: "#639922", bg: "#EAF3DE", text: "#27500A" },
 ];
 
-const now = new Date();
-const yr  = now.getFullYear();
-const mo  = now.getMonth();
-
-const OLYMPIAD_EVENTS = [
-  { date: new Date(yr, mo, 3),    cat: "math", title: "National Math Olympiad — Round 1",    venue: "Ulaanbaatar, School No. 1",  fee: "₮10,000", slots: 120 },
-  { date: new Date(yr, mo, 3),    cat: "phys", title: "Physics Challenge Open",               venue: "NUM, Ulaanbaatar",           fee: "₮8,000",  slots: 80  },
-  { date: new Date(yr, mo, 9),    cat: "cs",   title: "Computing Olympiad — Preliminary",     venue: "MUST Campus",                fee: "₮12,000", slots: 60  },
-  { date: new Date(yr, mo, 14),   cat: "math", title: "National Math Olympiad — Round 2",     venue: "Ulaanbaatar, School No. 23", fee: "₮10,000", slots: 64  },
-  { date: new Date(yr, mo, 14),   cat: "bio",  title: "Biology Regional Heat",                venue: "Darkhan Center",             fee: "₮7,500",  slots: 50  },
-  { date: new Date(yr, mo, 19),   cat: "chem", title: "Chemistry Olympiad — City Stage",      venue: "School of Sciences, UB",     fee: "₮9,000",  slots: 45  },
-  { date: new Date(yr, mo, 22),   cat: "phys", title: "Physics Challenge — Final",            venue: "NUM, Ulaanbaatar",           fee: "₮8,000",  slots: 30  },
-  { date: new Date(yr, mo + 1, 5),  cat: "cs",   title: "Computing Olympiad — Final",         venue: "MUST Campus",                fee: "₮12,000", slots: 30  },
-  { date: new Date(yr, mo + 1, 12), cat: "math", title: "National Math Olympiad — Final",     venue: "State Palace, UB",           fee: "₮10,000", slots: 32  },
-];
-
-const WEEKDAYS    = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS_LABEL = [
+const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTHS = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December",
 ];
 
-function dateKey(d) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-function buildEventMap() {
-  const map = {};
-  OLYMPIAD_EVENTS.forEach(e => {
-    const k = dateKey(e.date);
-    if (!map[k]) map[k] = [];
-    map[k].push(e);
-  });
-  return map;
-}
-
-const EVENT_MAP = buildEventMap();
-
-// ---------------------------------------------------------------------------
-// OlympiadCalendar component
-// ---------------------------------------------------------------------------
 function OlympiadCalendar() {
-  const [cursor, setCursor]         = useState(new Date(yr, mo, 1));
+
   const [selectedKey, setSelectedKey] = useState(null);
+   const { events: dbEvents, loading } = useEvents();
+  const events = useMemo(() => transformEvents(dbEvents), [dbEvents]);
+  const eventMap = useMemo(() => buildEventMap(events), [events]);
+    const now = new Date();
+      const [cursor, setCursor] = useState(new Date(now.getFullYear(), now.getMonth(),1));
 
   const firstDay    = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay();
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
@@ -79,7 +56,7 @@ function OlympiadCalendar() {
     cells.push({ d, inMonth });
   }
 
-  const selectedEvents = selectedKey ? (EVENT_MAP[selectedKey] || []) : [];
+  const selectedEvents = selectedKey ? (eventMap[selectedKey] || []) : [];
 
   return (
     <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
@@ -117,7 +94,7 @@ function OlympiadCalendar() {
               <ChevronLeft className="size-4" /> Prev
             </button>
             <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              {MONTHS_LABEL[cursor.getMonth()]} {cursor.getFullYear()}
+              {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
             </span>
             <button
               onClick={() => { setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)); setSelectedKey(null); }}
@@ -138,7 +115,7 @@ function OlympiadCalendar() {
           <div className="grid grid-cols-7 gap-1">
             {cells.map(({ d, inMonth }, i) => {
               const k      = dateKey(d);
-              const evts   = EVENT_MAP[k] || [];
+              const evts   = eventMap[k] || [];
               const isToday = dateKey(d) === dateKey(now);
               const isSel  = k === selectedKey;
               const hasEvt = evts.length > 0;
@@ -161,7 +138,7 @@ function OlympiadCalendar() {
                   <div className="flex flex-wrap gap-0.5 mt-0.5">
                     {evts.slice(0, 4).map((e, j) => {
                       const cat = CATS.find(c => c.id === e.cat);
-                      return <div key={j} className="w-2 h-2 rounded-full" style={{ background: cat.color }} />;
+                      return <div key={j} className="w-2 h-2 rounded-full" style={{ background: cat?.color }} />;
                     })}
                   </div>
                 </div>
@@ -188,18 +165,18 @@ function OlympiadCalendar() {
               className="mt-6 rounded-2xl border border-violet-200/60 dark:border-violet-800/60 overflow-hidden"
             >
               <div className="px-4 py-2.5 bg-violet-50 dark:bg-violet-900/30 text-xs text-violet-600 dark:text-violet-300 font-medium border-b border-violet-200/60 dark:border-violet-800/60">
-                {WEEKDAYS[selectedEvents[0].date.getDay()]}, {MONTHS_LABEL[selectedEvents[0].date.getMonth()]} {selectedEvents[0].date.getDate()} — {selectedEvents.length} event{selectedEvents.length > 1 ? "s" : ""}
+                {WEEKDAYS[selectedEvents[0].date.getDay()]}, {MONTHS[selectedEvents[0].date.getMonth()]} {selectedEvents[0].date.getDate()} — {selectedEvents.length} event{selectedEvents.length > 1 ? "s" : ""}
               </div>
               {selectedEvents.map((e, i) => {
                 const cat = CATS.find(c => c.id === e.cat);
                 return (
                   <div key={i} className="flex items-start gap-3 px-4 py-3 border-b last:border-b-0 border-violet-100 dark:border-violet-900/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: cat.color }} />
+                    <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: cat?.color }} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{e.title}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{e.venue}</p>
                       <div className="flex flex-wrap gap-2 mt-1.5">
-                        <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.bg, color: cat.text }}>{cat.label}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat?.bg, color: cat?.text }}>{cat?.label}</span>
                         <span className="text-xs px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Fee: {e.fee}</span>
                         <span className="text-xs px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{e.slots} slots</span>
                       </div>
@@ -226,6 +203,8 @@ function OlympiadCalendar() {
     </section>
   );
 }
+
+
 
 // ---------------------------------------------------------------------------
 // Home page
@@ -390,7 +369,7 @@ export function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-white dark:bg-gray-900 transform -skew-y-2 origin-top-left" />
+        
       </section>
 
       {/* ── Choose Your Path ─────────────────────────────────────────────── */}
