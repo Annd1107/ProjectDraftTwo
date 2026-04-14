@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router";
+import { useState, useEffect} from "react";
+import { useNavigate, Link, Router } from "react-router";
 import {
   Trophy,
   Calendar,
@@ -228,6 +228,7 @@ export function StudentDashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
+                  onClick={() => navigate(`/tournament/${olympiad.id}`)}
                   className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-violet-200/50 dark:border-violet-800/50 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300"
                 >
                   {/* Olympiad Header */}

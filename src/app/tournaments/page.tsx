@@ -11,7 +11,7 @@ export default function TournamentsPage() {
   const { olympiads } = useOlympiads();
   const { user } = useAuth();
   const router = useRouter();
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("date");
@@ -23,12 +23,12 @@ export default function TournamentsPage() {
   // Filter and sort tournaments
   let filteredTournaments = olympiads.filter((olympiad) => {
     const matchesSearch = olympiad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         olympiad.description.toLowerCase().includes(searchQuery.toLowerCase());
+      olympiad.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "all" || olympiad.category === categoryFilter;
-    const matchesPrice = priceFilter === "all" || 
-                        (priceFilter === "free" && olympiad.registration_fee === 0) ||
-                        (priceFilter === "paid" && olympiad.registration_fee > 0);
-    
+    const matchesPrice = priceFilter === "all" ||
+      (priceFilter === "free" && olympiad.registration_fee === 0) ||
+      (priceFilter === "paid" && olympiad.registration_fee > 0);
+
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
@@ -143,21 +143,19 @@ export default function TournamentsPage() {
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-lg transition-all ${
-                viewMode === "grid"
+              className={`p-2 rounded-lg transition-all ${viewMode === "grid"
                   ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
                   : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+                }`}
             >
               <Grid3x3 className="size-5" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-lg transition-all ${
-                viewMode === "list"
+              className={`p-2 rounded-lg transition-all ${viewMode === "list"
                   ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
                   : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
+                }`}
             >
               <List className="size-5" />
             </button>
@@ -191,7 +189,8 @@ export default function TournamentsPage() {
               const isFull = tournament.registered_count >= tournament.max_participants;
               const isPast = new Date(tournament.date) < new Date();
               const spotsLeft = tournament.max_participants - tournament.registered_count;
-
+              const isOrganizer = user?.role === "organizer";
+              const isOwner = user?.id === tournament.organizer_id;
               return (
                 <div
                   key={tournament.id}
@@ -249,12 +248,13 @@ export default function TournamentsPage() {
                       <div className="flex items-center gap-2 text-gray-900 dark:text-white">
                         <Banknote className="size-4 flex-shrink-0" />
                         <span className="font-bold">
-                          {tournament.registration_fee === 0 
-                            ? "Үнэгүй" 
+                          {tournament.registration_fee === 0
+                            ? "Үнэгүй"
                             : `${tournament.registration_fee.toLocaleString()}₮`
                           }
                         </span>
                       </div>
+
                     </div>
 
                     {/* Progress Bar */}
@@ -273,9 +273,40 @@ export default function TournamentsPage() {
                       Зохион байгуулагч: {tournament.organizer_name}
                     </div>
 
-                    <button className="w-full px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium group-hover:shadow-lg">
-                      Дэлгэрэнгүй үзэх
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTournamentClick(tournament.id);
+                        }}
+                        className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all"
+                      >
+                        Дэлгэрэнгүй
+                      </button>
+
+                      {isOrganizer && isOwner && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/organizer/edit/${tournament.id}`);
+                          }}
+                          className="px-4 py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-all"
+                        >
+                          Засах
+                        </button>
+                      )}
+                      {isOrganizer && isOwner && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/organizer/edit/${tournament.id}?tab=material`);
+                          }}
+                          className="px-4 py-3 bg-indigo-500 text-white rounded-xl"
+                        >
+                          Материал
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -287,7 +318,8 @@ export default function TournamentsPage() {
               const isFull = tournament.registered_count >= tournament.max_participants;
               const isPast = new Date(tournament.date) < new Date();
               const spotsLeft = tournament.max_participants - tournament.registered_count;
-
+              const isOwner = user?.id === tournament.organizer_id;
+              const isOrganizer = user?.role === "organizer";
               return (
                 <div
                   key={tournament.id}
@@ -335,8 +367,8 @@ export default function TournamentsPage() {
                     <div className="flex flex-col justify-between items-end">
                       <div className="text-right mb-4">
                         <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                          {tournament.registration_fee === 0 
-                            ? "Үнэгүй" 
+                          {tournament.registration_fee === 0
+                            ? "Үнэгүй"
                             : `${tournament.registration_fee.toLocaleString()}₮`
                           }
                         </div>
@@ -344,9 +376,41 @@ export default function TournamentsPage() {
                           Бүртгэлийн хураамж
                         </div>
                       </div>
-                      <button className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium whitespace-nowrap">
-                        Дэлгэрэнгүй →
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTournamentClick(tournament.id);
+                          }}
+                          className="px-6 py-3 bg-purple-600 text-white rounded-xl"
+                        >
+                          Дэлгэрэнгүй →
+                        </button>
+
+                        {isOrganizer && isOwner && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/edit/${tournament.id}`);
+                            }}
+                            className="px-6 py-3 bg-yellow-500 text-white rounded-xl"
+                          >
+                            Засах
+                          </button>
+
+                        )}
+                        {isOrganizer && isOwner && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/organizer/edit/${tournament.id}?tab=material`);
+                            }}
+                            className="px-4 py-3 bg-indigo-500 text-white rounded-xl"
+                          >
+                            Материал
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

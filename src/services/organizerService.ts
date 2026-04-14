@@ -1,5 +1,5 @@
 import { supabase } from '../utils/supabase'
-export async function createOrganizer(profile) {
+export async function createOrganizer(profile : any) {
   return await supabase.from("Organizers").insert([profile]);
 }
 export async function payment_data(id: string) {
