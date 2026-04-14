@@ -1,26 +1,248 @@
+import { useState } from "react";
 import { Link } from "react-router";
-import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, Star, TrendingUp, CheckCircle2, Sparkles, GraduationCap, Target } from "lucide-react";
+import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
-
 import { motion } from "motion/react";
+  
+const CATS = [
+  { id: "math", label: "Mathematics", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
+  { id: "phys", label: "Physics",     color: "#1D9E75", bg: "#E1F5EE", text: "#085041" },
+  { id: "chem", label: "Chemistry",   color: "#D85A30", bg: "#FAECE7", text: "#4A1B0C" },
+  { id: "cs",   label: "Computing",   color: "#378ADD", bg: "#E6F1FB", text: "#0C447C" },
+  { id: "bio",  label: "Biology",     color: "#639922", bg: "#EAF3DE", text: "#27500A" },
+];
 
-const studentImg = "https://images.unsplash.com/photo-1614492898637-435e0f87cef8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwc3R1ZHlpbmclMjBjb21wZXRpdGlvbiUyMGZvY3VzZWR8ZW58MXx8fHwxNzczMjA0ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
-const trophyImg = "https://images.unsplash.com/photo-1764874299025-d8b2251f307d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cm9waHklMjBhd2FyZCUyMGNlcmVtb255JTIwY2VsZWJyYXRpb258ZW58MXx8fHwxNzczMjA0ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+const now = new Date();
+const yr  = now.getFullYear();
+const mo  = now.getMonth();
 
-export function Home() {
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const logo = "src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
+const OLYMPIAD_EVENTS = [
+  { date: new Date(yr, mo, 3),    cat: "math", title: "National Math Olympiad — Round 1",    venue: "Ulaanbaatar, School No. 1",  fee: "₮10,000", slots: 120 },
+  { date: new Date(yr, mo, 3),    cat: "phys", title: "Physics Challenge Open",               venue: "NUM, Ulaanbaatar",           fee: "₮8,000",  slots: 80  },
+  { date: new Date(yr, mo, 9),    cat: "cs",   title: "Computing Olympiad — Preliminary",     venue: "MUST Campus",                fee: "₮12,000", slots: 60  },
+  { date: new Date(yr, mo, 14),   cat: "math", title: "National Math Olympiad — Round 2",     venue: "Ulaanbaatar, School No. 23", fee: "₮10,000", slots: 64  },
+  { date: new Date(yr, mo, 14),   cat: "bio",  title: "Biology Regional Heat",                venue: "Darkhan Center",             fee: "₮7,500",  slots: 50  },
+  { date: new Date(yr, mo, 19),   cat: "chem", title: "Chemistry Olympiad — City Stage",      venue: "School of Sciences, UB",     fee: "₮9,000",  slots: 45  },
+  { date: new Date(yr, mo, 22),   cat: "phys", title: "Physics Challenge — Final",            venue: "NUM, Ulaanbaatar",           fee: "₮8,000",  slots: 30  },
+  { date: new Date(yr, mo + 1, 5),  cat: "cs",   title: "Computing Olympiad — Final",         venue: "MUST Campus",                fee: "₮12,000", slots: 30  },
+  { date: new Date(yr, mo + 1, 12), cat: "math", title: "National Math Olympiad — Final",     venue: "State Palace, UB",           fee: "₮10,000", slots: 32  },
+];
+
+const WEEKDAYS    = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS_LABEL = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function buildEventMap() {
+  const map = {};
+  OLYMPIAD_EVENTS.forEach(e => {
+    const k = dateKey(e.date);
+    if (!map[k]) map[k] = [];
+    map[k].push(e);
+  });
+  return map;
+}
+
+const EVENT_MAP = buildEventMap();
+
+// ---------------------------------------------------------------------------
+// OlympiadCalendar component
+// ---------------------------------------------------------------------------
+function OlympiadCalendar() {
+  const [cursor, setCursor]         = useState(new Date(yr, mo, 1));
+  const [selectedKey, setSelectedKey] = useState(null);
+
+  const firstDay    = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay();
+  const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+  const daysInPrev  = new Date(cursor.getFullYear(), cursor.getMonth(), 0).getDate();
+  const total       = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  const cells = [];
+  for (let i = 0; i < total; i++) {
+    let d; let inMonth = true;
+    if (i < firstDay) {
+      d = new Date(cursor.getFullYear(), cursor.getMonth() - 1, daysInPrev - firstDay + i + 1);
+      inMonth = false;
+    } else if (i < firstDay + daysInMonth) {
+      d = new Date(cursor.getFullYear(), cursor.getMonth(), i - firstDay + 1);
+    } else {
+      d = new Date(cursor.getFullYear(), cursor.getMonth() + 1, i - firstDay - daysInMonth + 1);
+      inMonth = false;
+    }
+    cells.push({ d, inMonth });
+  }
+
+  const selectedEvents = selectedKey ? (EVENT_MAP[selectedKey] || []) : [];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section - Split Screen */}
+    <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
+      <div className="max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              Upcoming Olympiads
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            Browse events by date and register directly
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl border border-violet-200/50 dark:border-violet-800/50 p-6 lg:p-10 shadow-xl shadow-violet-500/10"
+        >
+          {/* Nav */}
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => { setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1)); setSelectedKey(null); }}
+              className="flex items-center gap-1 px-4 py-2 rounded-xl border border-violet-200 dark:border-violet-800 text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors text-sm font-medium"
+            >
+              <ChevronLeft className="size-4" /> Prev
+            </button>
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {MONTHS_LABEL[cursor.getMonth()]} {cursor.getFullYear()}
+            </span>
+            <button
+              onClick={() => { setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)); setSelectedKey(null); }}
+              className="flex items-center gap-1 px-4 py-2 rounded-xl border border-violet-200 dark:border-violet-800 text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors text-sm font-medium"
+            >
+              Next <ChevronRight className="size-4" />
+            </button>
+          </div>
+
+          {/* Weekday headers */}
+          <div className="grid grid-cols-7 gap-1 mb-1">
+            {WEEKDAYS.map(d => (
+              <div key={d} className="text-center text-xs text-gray-400 dark:text-gray-500 py-1">{d}</div>
+            ))}
+          </div>
+
+          {/* Day grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {cells.map(({ d, inMonth }, i) => {
+              const k      = dateKey(d);
+              const evts   = EVENT_MAP[k] || [];
+              const isToday = dateKey(d) === dateKey(now);
+              const isSel  = k === selectedKey;
+              const hasEvt = evts.length > 0;
+
+              return (
+                <div
+                  key={i}
+                  onClick={() => hasEvt && setSelectedKey(isSel ? null : k)}
+                  className={`
+                    min-h-[52px] rounded-xl p-1.5 transition-all duration-150 relative
+                    ${inMonth ? "bg-gray-50 dark:bg-gray-700/50" : ""}
+                    ${isToday ? "ring-2 ring-violet-400 dark:ring-violet-500" : ""}
+                    ${hasEvt ? "cursor-pointer hover:bg-violet-50 dark:hover:bg-violet-900/40" : ""}
+                    ${isSel  ? "ring-2 ring-violet-600 dark:ring-violet-400 bg-violet-50 dark:bg-violet-900/40" : ""}
+                  `}
+                >
+                  <span className={`text-xs font-medium ${inMonth ? "text-gray-700 dark:text-gray-200" : "text-gray-300 dark:text-gray-600"}`}>
+                    {d.getDate()}
+                  </span>
+                  <div className="flex flex-wrap gap-0.5 mt-0.5">
+                    {evts.slice(0, 4).map((e, j) => {
+                      const cat = CATS.find(c => c.id === e.cat);
+                      return <div key={j} className="w-2 h-2 rounded-full" style={{ background: cat.color }} />;
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap gap-4 mt-5 pt-4 border-t border-violet-100 dark:border-violet-900">
+            {CATS.map(c => (
+              <div key={c.id} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: c.color }} />
+                {c.label}
+              </div>
+            ))}
+          </div>
+
+          {/* Event detail panel */}
+          {selectedEvents.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="mt-6 rounded-2xl border border-violet-200/60 dark:border-violet-800/60 overflow-hidden"
+            >
+              <div className="px-4 py-2.5 bg-violet-50 dark:bg-violet-900/30 text-xs text-violet-600 dark:text-violet-300 font-medium border-b border-violet-200/60 dark:border-violet-800/60">
+                {WEEKDAYS[selectedEvents[0].date.getDay()]}, {MONTHS_LABEL[selectedEvents[0].date.getMonth()]} {selectedEvents[0].date.getDate()} — {selectedEvents.length} event{selectedEvents.length > 1 ? "s" : ""}
+              </div>
+              {selectedEvents.map((e, i) => {
+                const cat = CATS.find(c => c.id === e.cat);
+                return (
+                  <div key={i} className="flex items-start gap-3 px-4 py-3 border-b last:border-b-0 border-violet-100 dark:border-violet-900/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                    <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: cat.color }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{e.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{e.venue}</p>
+                      <div className="flex flex-wrap gap-2 mt-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: cat.bg, color: cat.text }}>{cat.label}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">Fee: {e.fee}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{e.slots} slots</span>
+                      </div>
+                    </div>
+                    <Link
+                      to="/signup"
+                      className="flex-shrink-0 text-xs px-3 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+                    >
+                      Register
+                    </Link>
+                  </div>
+                );
+              })}
+            </motion.div>
+          )}
+
+          {!selectedKey && (
+            <p className="mt-5 text-center text-sm text-gray-400 dark:text-gray-500">
+              Tap a highlighted date to see events
+            </p>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Home page
+// ---------------------------------------------------------------------------
+export function Home() {
+  const { user } = useAuth();
+  const { t }    = useLanguage();
+
+  return (
+    <div className="min-h-screen w-screen">
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
-        {/* Left Side - Content */}
+
         <div className="relative flex items-center p-8 lg:p-16 bg-gradient-to-br from-white via-violet-50/30 to-purple-50/50 dark:from-gray-900 dark:via-purple-950/30 dark:to-violet-950/50">
           <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
-            {/* Floating Badge */}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -33,7 +255,6 @@ export function Home() {
               </span>
             </motion.div>
 
-            {/* Main Heading */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -53,7 +274,6 @@ export function Home() {
               </p>
             </motion.div>
 
-            {/* CTA Buttons */}
             {!user && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -69,7 +289,7 @@ export function Home() {
                     {t("nav.signup")}
                     <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
                 <Link
                   to="/login"
@@ -96,7 +316,6 @@ export function Home() {
               </motion.div>
             )}
 
-            {/* Stats */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -104,32 +323,25 @@ export function Home() {
               className="grid grid-cols-3 gap-6 pt-8 border-t border-violet-200/50 dark:border-violet-800/50"
             >
               <div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  1,200+
-                </div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">1,200+</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Students</div>
               </div>
               <div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  45+
-                </div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">45+</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Tournaments</div>
               </div>
               <div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  25+
-                </div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">25+</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Organizers</div>
               </div>
             </motion.div>
           </div>
 
-          {/* Decorative Elements */}
-          <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20"></div>
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-10"></div>
+          <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20" />
+          <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-10" />
         </div>
 
-        {/* Right Side - Image with Floating Cards */}
+        {/* Right side */}
         <div className="relative hidden lg:flex items-center justify-center p-16 bg-gradient-to-bl from-violet-100 via-purple-100 to-fuchsia-100 dark:from-purple-950 dark:via-violet-950 dark:to-fuchsia-950">
           <div className="relative">
             <motion.div
@@ -139,10 +351,9 @@ export function Home() {
               className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/30 bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center"
             >
               <GraduationCap className="size-48 text-white opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-violet-600/80 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-violet-600/80 to-transparent" />
             </motion.div>
 
-            {/* Floating Card 1 */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -160,7 +371,6 @@ export function Home() {
               </div>
             </motion.div>
 
-            {/* Floating Card 2 */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -180,11 +390,10 @@ export function Home() {
           </div>
         </div>
 
-        {/* Diagonal Divider */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-white dark:bg-gray-900 transform -skew-y-2 origin-top-left"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-white dark:bg-gray-900 transform -skew-y-2 origin-top-left" />
       </section>
 
-      {/* User Type Cards - Asymmetric Layout */}
+      {/* ── Choose Your Path ─────────────────────────────────────────────── */}
       <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -205,7 +414,7 @@ export function Home() {
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Student Card */}
+            {/* Student card */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -215,36 +424,21 @@ export function Home() {
             >
               <div className="relative bg-gradient-to-br from-violet-500 to-purple-600 p-[2px] rounded-3xl overflow-hidden">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 lg:p-10 h-full">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20"></div>
-                  
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20" />
                   <div className="relative z-10">
                     <div className="inline-flex p-4 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-lg shadow-violet-500/30 mb-6">
                       <Users className="size-10 text-white" />
                     </div>
-
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                      {t("home.studentTitle")}
-                    </h3>
-                    
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                      {t("home.studentDesc")}
-                    </p>
-
+                    <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.studentTitle")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{t("home.studentDesc")}</p>
                     <ul className="space-y-3 mb-8">
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
-                        <span>Browse 45+ tournaments</span>
-                      </li>
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
-                        <span>Easy registration process</span>
-                      </li>
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
-                        <span>Track your achievements</span>
-                      </li>
+                      {["Browse 45+ tournaments", "Easy registration process", "Track your achievements"].map(item => (
+                        <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                          <CheckCircle2 className="size-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
                     </ul>
-
                     {!user && (
                       <Link
                         to="/signup"
@@ -259,7 +453,7 @@ export function Home() {
               </div>
             </motion.div>
 
-            {/* Organizer Card */}
+            {/* Organizer card */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -269,36 +463,21 @@ export function Home() {
             >
               <div className="relative bg-gradient-to-br from-fuchsia-500 to-purple-600 p-[2px] rounded-3xl overflow-hidden">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 lg:p-10 h-full">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-20"></div>
-                  
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-20" />
                   <div className="relative z-10">
                     <div className="inline-flex p-4 bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-2xl shadow-lg shadow-fuchsia-500/30 mb-6">
                       <Trophy className="size-10 text-white" />
                     </div>
-
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                      {t("home.organizerTitle")}
-                    </h3>
-                    
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                      {t("home.organizerDesc")}
-                    </p>
-
+                    <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.organizerTitle")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{t("home.organizerDesc")}</p>
                     <ul className="space-y-3 mb-8">
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0" />
-                        <span>Create unlimited events</span>
-                      </li>
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0" />
-                        <span>Manage registrations</span>
-                      </li>
-                      <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="size-5 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0" />
-                        <span>Analytics dashboard</span>
-                      </li>
+                      {["Create unlimited events", "Manage registrations", "Analytics dashboard"].map(item => (
+                        <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                          <CheckCircle2 className="size-5 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
                     </ul>
-
                     {!user && (
                       <Link
                         to="/signup"
@@ -316,7 +495,7 @@ export function Home() {
         </div>
       </section>
 
-      {/* Features Section - Bento Grid */}
+      {/* ── Features ─────────────────────────────────────────────────────── */}
       <section className="relative py-24 px-8 bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -335,9 +514,9 @@ export function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Zap, title: t("home.feature1"), desc: t("home.feature1Desc"), color: "from-violet-500 to-purple-600" },
+              { icon: Zap,    title: t("home.feature1"), desc: t("home.feature1Desc"), color: "from-violet-500 to-purple-600" },
               { icon: Shield, title: t("home.feature2"), desc: t("home.feature2Desc"), color: "from-fuchsia-500 to-purple-600" },
-              { icon: Bell, title: t("home.feature3"), desc: t("home.feature3Desc"), color: "from-violet-500 to-fuchsia-600" },
+              { icon: Bell,   title: t("home.feature3"), desc: t("home.feature3Desc"), color: "from-violet-500 to-fuchsia-600" },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -350,19 +529,18 @@ export function Home() {
                 <div className={`inline-flex p-4 bg-gradient-to-br ${feature.color} rounded-2xl shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="size-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {feature.desc}
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{feature.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── Olympiad Calendar ─────────────────────────────────────────────── */}
+      <OlympiadCalendar />
+
+      {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
@@ -372,13 +550,10 @@ export function Home() {
             transition={{ duration: 0.6 }}
             className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-12 lg:p-16 rounded-[3rem] overflow-hidden shadow-2xl shadow-violet-500/30"
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
-            
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl" />
             <div className="relative z-10">
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-                Ready to Get Started?
-              </h2>
+              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">Ready to Get Started?</h2>
               <p className="text-xl text-violet-100 mb-8">
                 Join thousands of students and organizers on Mongolia's premier olympiad platform
               </p>
@@ -402,6 +577,7 @@ export function Home() {
           </motion.div>
         </div>
       </section>
+
     </div>
   );
 }

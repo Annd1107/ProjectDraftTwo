@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, CreditCard, Building, AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
-import { updateRevenue } from "../services/organizerService";
+import { updateRevenue } from "../services/organizerService"; 
 
 interface PaymentModalProps {
   onClose: () => void;
   onConfirm: () => void;
   tournamentTitle: string;
   fee: number;
-
   olympiadId: string;
   organizerId: string;
 }
@@ -18,61 +17,44 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
   const [paymentMethod, setPaymentMethod] = useState<"card" | "qpay">("qpay");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const { user } = useAuth();
 
-  // Generate a random QR code on mount or when payment method changes to qpay
-  useEffect(() => {
-    if (paymentMethod === "qpay") {
-      generateQRCode();
-    }
-  }, [paymentMethod]);
-
-  const generateQRCode = () => {
-    // Generate random QR code using a QR code API with random data
-    const randomData = `QPAY-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(randomData)}`;
-    setQrCodeUrl(qrApiUrl);
-  };
-
   const handlePayment = async () => {
-  if (!user) return;
+    if (!user) return;
 
-  setIsProcessing(true);
+    setIsProcessing(true);
 
-  // simulate delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+    // simulate delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-  // ✅ SAVE TO SUPABASE
-  const { error } = await supabase.from("payment").insert({
-    id:Math.random().toString(36).substr(2, 9),
-    student_id: user.id,
-    olympiad_id: olympiadId,
-    total_fee: fee,
-    paid_date: new Date().toISOString(),
-    OrganizerId: organizerId,
-    payment_method: paymentMethod,
-    status: "paid",
-  });
+    const { error } = await supabase.from("payment").insert({
+      id: Math.random().toString(36).substr(2, 9),
+      student_id: user.id,
+      olympiad_id: olympiadId,
+      total_fee: fee,
+      paid_date: new Date().toISOString(),
+      OrganizerId: organizerId,
+      payment_method: paymentMethod,
+      status: "paid",
+    });
 
-  if (error) {
-    console.error(error);
-    alert("Төлбөр хадгалах үед алдаа гарлаа");
+    if (error) {
+      console.error(error);
+      alert("Төлбөр хадгалах үед алдаа гарлаа");
+      setIsProcessing(false);
+      return;
+    }
+
+    await updateRevenue(organizerId, fee);
+
     setIsProcessing(false);
-    return;
-  }
-  // Update organizer's revenue
-  await updateRevenue(organizerId, fee);
-  
+    setIsSuccess(true);
 
-  setIsProcessing(false);
-  setIsSuccess(true);
-
-  setTimeout(() => {
-    onConfirm();
-    setIsSuccess(false);
-  }, 1500);
-};
+    setTimeout(() => {
+      onConfirm();
+      setIsSuccess(false);
+    }, 1500);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
@@ -113,7 +95,7 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setPaymentMethod("qpay")}
-                  className={`p-4 rounded-xl border-2 transition-all ${ 
+                  className={`p-4 rounded-xl border-2 transition-all ${
                     paymentMethod === "qpay"
                       ? "border-purple-600 bg-purple-50 dark:bg-purple-900/30 shadow-md"
                       : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-700"
@@ -136,22 +118,18 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
               </div>
             </div>
 
-            {/* Payment Info */}
             {paymentMethod === "qpay" && (
               <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                   QPay-ээр төлбөр төлсний дараа бүртгэл баталгаажна.
-                  Энэ нь дараах банкуудаар боломжтой: Хаан банк, Хас банк, Төрийн банк гэх мэт.
                 </p>
-                {qrCodeUrl && (
-                  <div className="mt-4 flex justify-center">
-                    <img 
-                      src={qrCodeUrl} 
-                      alt="QPay QR Code" 
-                      className="w-48 h-48 border-4 border-white dark:border-gray-600 rounded-xl shadow-lg" 
-                    />
-                  </div>
-                )}
+                <div className="flex justify-center">
+                  <img
+                    src={"src/assets/qpay-qr.png"}
+                    alt="QPay QR Code"
+                    className="w-48 h-48 border-4 border-white dark:border-gray-600 rounded-xl shadow-lg"
+                  />
+                </div>
               </div>
             )}
 
@@ -168,8 +146,8 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
             <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl flex items-start gap-3">
               <AlertCircle className="size-5 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Анхааруулга:</strong> Энэ нь туршилтын төлбөр юм. 
-                Бодит төлбөр авахгүй бөгөөд "Төлбөр төлөх" товч дарснаар 
+                <strong>Анхааруулга:</strong> Энэ нь туршилтын төлбөр юм.
+                Бодит төлбөр авахгүй бөгөөд "Төлбөр төлөх" товч дарснаар
                 бүртгэл баталгаажна.
               </p>
             </div>
