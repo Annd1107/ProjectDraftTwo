@@ -18,10 +18,8 @@ export interface Olympiad {
 
   created_at: string;
 
-  // JSON column in Supabase
   registrations: string[];
 
-  // IMPORTANT: preparation material
   preparation_material?: {
     fileName: string;
     fileUrl: string;

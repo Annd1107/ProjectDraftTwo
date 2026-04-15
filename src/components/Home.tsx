@@ -9,10 +9,6 @@ import { useEvents } from "../lib/event-context";
 import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
 
 
-// ==========================
-// components/OlympiadCalendar.tsx
-// ==========================
-
 const CATS = [
   { id: "math", label: "Mathematics", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
   { id: "phys", label: "Physics",     color: "#1D9E75", bg: "#E1F5EE", text: "#085041" },

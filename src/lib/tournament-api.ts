@@ -82,6 +82,21 @@ export async function updateOlympiad(
   return data;
 }
 
+export async function registerForOlympiad(olympiadId: string, studentId: string) {
+  const { data, error } = await supabase
+    .from("Registration")
+    .insert({
+      id: crypto.randomUUID(), 
+      student_id: studentId,
+      olympiad_id: olympiadId,
+      registered_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+      if (error) throw error;
+  return data;
+  }
+
 /** DELETE olympiad (FIXED DUPLICATE REMOVED) */
 export async function deleteOlympiad(id: string) {
   const { error } = await supabase

@@ -7,7 +7,7 @@ import { LanguageProvider } from "../lib/language-context";
 import { ThemeProvider } from "../lib/theme-context";
 import { AchievementProvider } from "../lib/achievement-context";
 import { Navigation } from "../components/Navigation";
-import { Toaster } from "sonner@2.0.3";
+import { Toaster } from "sonner";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Youtube } from "lucide-react";
 

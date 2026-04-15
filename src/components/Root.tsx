@@ -1,12 +1,14 @@
+import { useState, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { Trophy, LogOut, Home, User, Info, LayoutDashboard, Globe, Bell, Moon, Sun, Award, Menu, X, Sparkles } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { useTheme } from "../lib/theme-context";
-import { useState } from "react";
 import logo from "figma:asset/logopurple.png";
+import { supabase } from "../utils/supabase";
 
 export function Root() {
+  const [hasNotifications, setHasNotifications] = useState(false);
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -26,6 +28,40 @@ export function Root() {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+  const hideDot = location.pathname === "/notifications";
+  
+    // ✅ fetch if user has ANY notifications
+    useEffect(() => {
+      if (!user) return;
+  
+      const fetchNotifications = async () => {
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("read", false)
+  
+    if (!error) {
+      setHasNotifications((data?.length ?? 0) > 0);
+    }
+  };
+  
+  
+      fetchNotifications();
+    }, [user]);
+    useEffect(() => {
+    if (location.pathname === "/notifications" && user) {
+      const markAsRead = async () => {
+        await supabase
+          .from("notifications")
+          .update({ read: true })
+          .eq("user_id", user.id);
+      };
+  
+      markAsRead();
+      setHasNotifications(false);
+    }
+  }, [location.pathname, user]);
 
   const NavLink = ({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
     <Link
@@ -74,16 +110,12 @@ export function Root() {
                   <NavLink to="/achievements">{t("nav.achievements")}</NavLink>
                   <Link
                     to="/notifications"
-                    className={`relative px-4 py-2 rounded-xl font-medium transition-all ${
-                      isActive("/notifications")
-                        ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/30'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-950/30'
-                    }`}
+                    className="hidden sm:flex relative p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                   >
                     <Bell className="size-5" />
-                    <span className="absolute -top-1 -right-1 size-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                      3
-                    </span>
+                    {hasNotifications && !hideDot && (
+                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                    )}
                   </Link>
                   <NavLink to="/profile">
                     <User className="size-5" />

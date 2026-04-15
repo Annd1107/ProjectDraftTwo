@@ -3,6 +3,7 @@ import { X, CreditCard, Building, AlertCircle, CheckCircle } from "lucide-react"
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
 import { updateRevenue } from "../services/organizerService"; 
+import { sendPaymentNotification } from "../lib/notification-utils";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -13,7 +14,14 @@ interface PaymentModalProps {
   organizerId: string;
 }
 
-export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympiadId, organizerId }: PaymentModalProps) {
+export function PaymentModal({
+  onClose,
+  onConfirm,
+  tournamentTitle,
+  fee,
+  olympiadId,
+  organizerId
+}: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "qpay">("qpay");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -28,7 +36,7 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     const { error } = await supabase.from("payment").insert({
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substr(2, 9), // text id
       student_id: user.id,
       olympiad_id: olympiadId,
       total_fee: fee,
@@ -45,7 +53,11 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
       return;
     }
 
+    // update organizer revenue
     await updateRevenue(organizerId, fee);
+
+    // ✅ SEND NOTIFICATION (FIXED)
+    await sendPaymentNotification(user.id, tournamentTitle);
 
     setIsProcessing(false);
     setIsSuccess(true);
@@ -81,13 +93,15 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
 
             {/* Amount */}
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-6">
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Бүртгэлийн хураамж</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                Бүртгэлийн хураамж
+              </div>
               <div className="text-4xl font-bold text-gray-900 dark:text-white">
                 {fee.toLocaleString()}₮
               </div>
             </div>
 
-            {/* Payment Method Selection */}
+            {/* Payment Method */}
             <div className="mb-6">
               <label className="block text-gray-700 dark:text-gray-300 mb-3 font-semibold">
                 Төлбөрийн хэрэгсэл сонгох
@@ -104,6 +118,7 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
                   <Building className="size-6 mx-auto mb-2 text-purple-600 dark:text-purple-400" />
                   <div className="text-sm font-medium text-gray-900 dark:text-white">QPay</div>
                 </button>
+
                 <button
                   onClick={() => setPaymentMethod("card")}
                   className={`p-4 rounded-xl border-2 transition-all ${
@@ -118,9 +133,10 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
               </div>
             </div>
 
+            {/* QPay */}
             {paymentMethod === "qpay" && (
               <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   QPay-ээр төлбөр төлсний дараа бүртгэл баталгаажна.
                 </p>
                 <div className="flex justify-center">
@@ -133,38 +149,37 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
               </div>
             )}
 
+            {/* Card */}
             {paymentMethod === "card" && (
               <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Картын мэдээллээ оруулснаар аюулгүй төлбөр төлөх боломжтой.
-                  Виза болон Мастеркарт картуудыг дэмждэг.
                 </p>
               </div>
             )}
 
             {/* Warning */}
-            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl flex items-start gap-3">
-              <AlertCircle className="size-5 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0" />
+            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl flex gap-3">
+              <AlertCircle className="size-5 text-yellow-600 dark:text-yellow-500" />
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Анхааруулга:</strong> Энэ нь туршилтын төлбөр юм.
-                Бодит төлбөр авахгүй бөгөөд "Төлбөр төлөх" товч дарснаар
-                бүртгэл баталгаажна.
+                Энэ нь туршилтын төлбөр юм.
               </p>
             </div>
 
-            {/* Actions */}
+            {/* Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={handlePayment}
                 disabled={isProcessing}
-                className="flex-1 py-3.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="flex-1 py-3 bg-purple-600 text-white rounded-xl"
               >
                 {isProcessing ? "Төлж байна..." : "Төлбөр төлөх"}
               </button>
+
               <button
                 onClick={onClose}
                 disabled={isProcessing}
-                className="px-6 py-3.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all disabled:opacity-50 font-semibold"
+                className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-xl"
               >
                 Цуцлах
               </button>
@@ -172,17 +187,9 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
           </>
         ) : (
           <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center size-20 bg-green-100 dark:bg-green-900/50 rounded-full mx-auto mb-6">
-              <CheckCircle className="size-12 text-green-600 dark:text-green-400" />
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Амжилттай!
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Төлбөр амжилттай төлөгдлөө.
-              <br />
-              Бүртгэл баталгаажлаа.
-            </p>
+            <CheckCircle className="size-12 text-green-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold">Амжилттай!</h3>
+            <p>Төлбөр амжилттай төлөгдлөө.</p>
           </div>
         )}
       </div>
