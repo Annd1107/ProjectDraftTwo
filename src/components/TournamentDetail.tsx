@@ -1,3 +1,4 @@
+// ======================= TOURNAMENT DETAIL (UPDATED) =======================
 import { useParams, useNavigate, Link } from "react-router";
 import { Calendar, MapPin, Users, ArrowLeft, CheckCircle, Building, Banknote, Award } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
@@ -15,7 +16,6 @@ export function TournamentDetail() {
 
   const olympiad = getById(id || "");
 
-  // AUTH GUARD
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -31,16 +31,13 @@ export function TournamentDetail() {
     );
   }
 
-  const isStudent = user?.role === "student";
+  const isOwner = user?.role === "organizer" && user?.id === olympiad.organizer_id;
 
-  // ✅ FIX: correct registration check
   const isRegistered = user
     ? olympiad.registrations.includes(user.id)
     : false;
 
-  const isFull =
-    olympiad.registered_count >= olympiad.max_participants;
-
+  const isFull = olympiad.registered_count >= olympiad.max_participants;
   const isPast = new Date(olympiad.date) < new Date();
 
   const handleRegister = () => {
@@ -53,14 +50,12 @@ export function TournamentDetail() {
 
   const handlePaymentSuccess = async () => {
     if (!user) return;
-
     await register(olympiad.id, user.id);
     setShowPaymentModal(false);
   };
 
   const handleUnregister = async () => {
     if (!user) return;
-
     if (confirm("Бүртгэлээ цуцлах уу?")) {
       await unregister(olympiad.id, user.id);
     }
@@ -70,13 +65,11 @@ export function TournamentDetail() {
 
   return (
     <div className="max-w-4xl mx-auto py-8">
-      {/* Back */}
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 mb-6">
         <ArrowLeft className="size-4" />
         Буцах
       </button>
 
-      {/* Header */}
       <div className="bg-white p-8 rounded-xl border">
         <div className="flex justify-between">
           <h1 className="text-3xl font-bold">{olympiad.title}</h1>
@@ -84,6 +77,15 @@ export function TournamentDetail() {
             {olympiad.category}
           </span>
         </div>
+
+        {isOwner && (
+          <button
+            onClick={() => navigate(`/tournament/${olympiad.id}/edit`)}
+            className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded-lg"
+          >
+            Засах (Edit)
+          </button>
+        )}
 
         {isRegistered && (
           <div className="mt-4 flex items-center gap-2 text-green-600">
@@ -94,7 +96,6 @@ export function TournamentDetail() {
 
         <p className="mt-4 text-gray-700">{olympiad.description}</p>
 
-        {/* INFO */}
         <div className="grid md:grid-cols-2 gap-6 mt-6">
           <div className="flex gap-2">
             <Calendar className="text-blue-600" />
@@ -120,22 +121,22 @@ export function TournamentDetail() {
             <Banknote className="text-yellow-600" />
             {olympiad.registration_fee.toLocaleString()}₮
           </div>
+
           {olympiad.preparation_material && (
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                        <Award className="size-4 text-violet-600 dark:text-violet-400" />
-                        <a
-                          href={olympiad.preparation_material.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-violet-600 dark:text-violet-400 hover:underline"
-                        >
-                          {olympiad.preparation_material.fileName || "View Preparation Material"}
-                        </a>
-                      </div>
-                    )}
+            <div className="flex items-center gap-2 text-gray-600 text-sm">
+              <Award className="size-4 text-violet-600" />
+              <a
+                href={olympiad.preparation_material.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-violet-600 hover:underline"
+              >
+                {olympiad.preparation_material.fileName}
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* ACTIONS */}
         {canInteract && (
           <div className="mt-6 border-t pt-6">
             {isRegistered ? (
@@ -151,18 +152,13 @@ export function TournamentDetail() {
                 disabled={isFull || isPast}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
               >
-                {isFull
-                  ? "Дүүрсэн"
-                  : isPast
-                  ? "Дууссан"
-                  : "Бүртгүүлэх"}
+                {isFull ? "Дүүрсэн" : isPast ? "Дууссан" : "Бүртгүүлэх"}
               </button>
             )}
           </div>
         )}
       </div>
 
-      {/* Payment */}
       {showPaymentModal && (
         <PaymentModal
           onClose={() => setShowPaymentModal(false)}

@@ -11,6 +11,7 @@ import { Profile } from "./components/Profile";
 import { Notifications } from "./components/Notifications";
 import { Achievements } from "./components/Achievements";
 import { NotFound } from "./components/NotFound";
+import { TournamentEdit } from "./components/TournamentEdit";
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: "signup", element: <Signup /> },
       { path: "student", element: <StudentDashboard /> },
       { path: "organizer", element: <OrganizerDashboard /> },
+      {path: "/tournament/:id/edit", element: <TournamentEdit /> },
       { path: "tournament/:id", element: <TournamentDetail /> },
       { path: "profile", element: <Profile /> },
       { path: "notifications", element: <Notifications /> },

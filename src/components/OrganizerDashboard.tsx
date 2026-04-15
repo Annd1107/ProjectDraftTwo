@@ -279,6 +279,7 @@ export function OrganizerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
+                    onClick={() => navigate(`/tournament/${olympiad.id}`)}
                     className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-violet-200/50 dark:border-violet-800/50 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300"
                   >
                     {/* Header */}
@@ -306,7 +307,7 @@ export function OrganizerDashboard() {
                     </p>
 
                     {/* Details */}
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-4" >
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Calendar className="size-4 text-purple-600 dark:text-purple-400" />
                         <span>{new Date(olympiad.date).toLocaleDateString()}</span>
@@ -317,12 +318,13 @@ export function OrganizerDashboard() {
                       </div>
                       {olympiad.preparation_material && (
                         <button
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleDownload(
                               olympiad.preparation_material.fileUrl,
                               olympiad.preparation_material.fileName
-                            )
-                          }
+                            );
+                          }}
                           className="text-violet-600 hover:underline"
                         >
                           Download Preparation Material

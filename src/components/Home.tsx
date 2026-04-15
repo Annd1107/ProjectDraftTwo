@@ -267,7 +267,7 @@ export function Home() {
                   <div className="absolute inset-0 bg-gradient-to-r from-violet-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
                 <Link
-                  to="/login"
+                  to={user ? (user.role === "organizer" ? "/organizer" : "/student") : "/login"}
                   className="px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 border-2 border-violet-300 dark:border-violet-700 rounded-2xl font-semibold hover:bg-white dark:hover:bg-gray-800 hover:border-violet-500 dark:hover:border-violet-500 transition-all duration-300 shadow-lg"
                 >
                   {t("nav.login")}
@@ -552,7 +552,6 @@ export function Home() {
           </motion.div>
         </div>
       </section>
-
     </div>
   );
 }
