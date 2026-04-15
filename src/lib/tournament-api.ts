@@ -5,6 +5,12 @@ export interface PreparationMaterial {
   fileUrl: string;
 }
 
+export interface Registration{
+  id:string,
+  created_at:string,
+  student_id:string, 
+  olympiad_id:string
+}
 export interface Olympiad {
   id: string;
   title: string;
@@ -23,8 +29,6 @@ export interface Olympiad {
 
   created_at: string;
 
-  // JSON column in Supabase
-  registrations: string[];
 
   // IMPORTANT: preparation material
   preparation_material?: {
@@ -90,4 +94,35 @@ export async function deleteOlympiad(id: string) {
     .eq("id", id);
 
   if (error) throw error;
+}
+
+export async function registerOlympiad(studentId: string, olympiadId: string){
+  const {data, error} = await supabase
+  .from("Registrations")
+  .insert({id: crypto.randomUUID(),
+    created_at: new Date().toISOString(),
+    student_id:studentId,
+    olympiad_id: olympiadId
+  })
+  .select()
+  .single()
+   if (error) throw error;
+  return data;
+}
+export async function unregisterOlympiad( id: string){
+  const {data, error} = await supabase
+  .from("Registrations")
+  .delete()
+  .eq("id", id);
+   if (error) throw error;
+  return data;
+}
+export async function getRegistrations(): Promise<Registration[]> {
+  const { data, error } = await supabase
+    .from("Registrations")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
 }

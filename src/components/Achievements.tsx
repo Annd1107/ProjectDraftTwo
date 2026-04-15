@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { useNavigate } from "react-router";
 import { Trophy, Medal, Award, Calendar, MapPin, Users, Target, ArrowLeft, TrendingUp } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { useAchievements } from "../lib/achievement-context";
+import { getPlacementsByStudent } from "../lib/placements-api";
+
 
 export function Achievements() {
   const { user } = useAuth();
@@ -11,6 +13,10 @@ export function Achievements() {
   const { getStudentAchievements } = useAchievements();
   const navigate = useNavigate();
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  
+const [placements, setPlacements] = useState([]);
+
+
 
   if (!user) {
     navigate("/login");
@@ -78,6 +84,15 @@ export function Achievements() {
       return <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-semibold">{placement}{t("achievements.place")}</span>;
     }
   };
+  useEffect(() => {
+  const load = async () => {
+    if (!user) return;
+    const data = await getPlacementsByStudent(user.id);
+    setPlacements(data);
+  };
+
+  load();
+}, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">

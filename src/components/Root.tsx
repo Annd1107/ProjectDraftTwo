@@ -71,7 +71,7 @@ export function Root() {
                   <NavLink to={user.role === "organizer" ? "/organizer" : "/student"}>
                     {t("nav.dashboard")}
                   </NavLink>
-                  <NavLink to="/achievements">{t("nav.achievements")}</NavLink>
+                  <NavLink to={user.role === "student" ? "/achievements" : "/rankings"}>{user.role === "student" ?  t("nav.achievements") : "Rankings"}</NavLink>
                   <Link
                     to="/notifications"
                     className={`relative px-4 py-2 rounded-xl font-medium transition-all ${

@@ -12,6 +12,8 @@ import { Notifications } from "./components/Notifications";
 import { Achievements } from "./components/Achievements";
 import { NotFound } from "./components/NotFound";
 import { TournamentEdit } from "./components/TournamentEdit";
+import { OrganizerResults } from "./components/OrganizerResults";
+
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "organizer", element: <OrganizerDashboard /> },
       {path: "/tournament/:id/edit", element: <TournamentEdit /> },
       { path: "tournament/:id", element: <TournamentDetail /> },
+ { path: "organizer/results/:id", element: <OrganizerResults /> },
       { path: "profile", element: <Profile /> },
       { path: "notifications", element: <Notifications /> },
       { path: "achievements", element: <Achievements /> },

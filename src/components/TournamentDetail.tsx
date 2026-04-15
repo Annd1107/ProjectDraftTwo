@@ -33,8 +33,14 @@ export function TournamentDetail() {
 
   const isOwner = user?.role === "organizer" && user?.id === olympiad.organizer_id;
 
+  const { registrations } = useOlympiads();
+
   const isRegistered = user
-    ? olympiad.registrations.includes(user.id)
+    ? registrations.some(
+      (r) =>
+        r.olympiad_id === olympiad.id &&
+        r.student_id === user.id
+    )
     : false;
 
   const isFull = olympiad.registered_count >= olympiad.max_participants;
@@ -157,6 +163,7 @@ export function TournamentDetail() {
             )}
           </div>
         )}
+
       </div>
 
       {showPaymentModal && (

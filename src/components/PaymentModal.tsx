@@ -3,6 +3,7 @@ import { X, CreditCard, Building, AlertCircle, CheckCircle } from "lucide-react"
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
 import { updateRevenue } from "../services/organizerService"; 
+import { useOlympiads } from "../lib/tournament-context";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -18,17 +19,20 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { user } = useAuth();
+  const {register} = useOlympiads();
 
   const handlePayment = async () => {
-    if (!user) return;
+  if (!user) return;
 
-    setIsProcessing(true);
+  setIsProcessing(true);
 
+  try {
     // simulate delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
+    // ✅ 2. insert payment
     const { error } = await supabase.from("payment").insert({
-      id: Math.random().toString(36).substr(2, 9),
+       id: Math.random().toString(36).substr(2, 9),
       student_id: user.id,
       olympiad_id: olympiadId,
       total_fee: fee,
@@ -37,24 +41,22 @@ export function PaymentModal({ onClose, onConfirm, tournamentTitle, fee, olympia
       payment_method: paymentMethod,
       status: "paid",
     });
-
-    if (error) {
-      console.error(error);
-      alert("Төлбөр хадгалах үед алдаа гарлаа");
-      setIsProcessing(false);
-      return;
-    }
-
     await updateRevenue(organizerId, fee);
 
-    setIsProcessing(false);
     setIsSuccess(true);
 
     setTimeout(() => {
-      onConfirm();
       setIsSuccess(false);
-    }, 1500);
-  };
+      onConfirm(); // optional UI refresh
+    }, 1200);
+
+  } catch (err) {
+    console.error(err);
+    alert("Төлбөр хийхэд алдаа гарлаа");
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">

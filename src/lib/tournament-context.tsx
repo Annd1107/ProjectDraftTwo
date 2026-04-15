@@ -13,6 +13,9 @@ import {
   createOlympiad,
   updateOlympiad,
   deleteOlympiad,
+  registerOlympiad,
+  unregisterOlympiad,
+  getRegistrations
 } from "./tournament-api";
 
 export interface PreparationMaterial {
@@ -39,20 +42,24 @@ export interface Olympiad {
 
   created_at: string;
 
-  // JSON column in Supabase
-  registrations: string[];
-
   // IMPORTANT: preparation material
   preparation_material?: {
     fileName: string;
     fileUrl: string;
   } | null;
 }
+export interface Registration {
+  id: string,
+  created_at: string,
+  student_id: string,
+  olympiad_id: string
+}
 
 import { useAuth } from "./auth-context";
 
 interface OlympiadContextType {
   olympiads: Olympiad[];
+  registrations: Registration[];
   isLoading: boolean;
 
   addOlympiad: (data: Omit<Olympiad,
@@ -76,13 +83,17 @@ export function OlympiadProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   const [olympiads, setOlympiads] = useState<Olympiad[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
 
   /** LOAD */
   useEffect(() => {
     (async () => {
       const data = await getOlympiads();
       setOlympiads(data);
+      const dta = await getRegistrations();
+      setRegistrations(dta);
       setIsLoading(false);
     })();
   }, []);
@@ -117,40 +128,60 @@ export function OlympiadProvider({ children }: { children: ReactNode }) {
     setOlympiads((prev) => prev.filter((o) => o.id !== id));
   };
 
-  /** REGISTER */
   const register = async (olympiadId: string, studentId: string) => {
     const olympiad = olympiads.find((o) => o.id === olympiadId);
     if (!olympiad) return;
 
-    if (olympiad.registrations.includes(studentId)) return;
+    const alreadyRegistered = registrations.some(
+      (r) => r.olympiad_id === olympiadId && r.student_id === studentId
+    );
+
+    if (alreadyRegistered) return;
+
     if (olympiad.registered_count >= olympiad.max_participants) return;
 
-    const updated: Olympiad = {
+    const newReg = await registerOlympiad(studentId, olympiadId);
+
+    const updated = {
       ...olympiad,
-      registrations: [...olympiad.registrations, studentId],
       registered_count: olympiad.registered_count + 1,
     };
 
-    await updateOlympiad(olympiadId, updated);
+    await updateOlympiad(olympiadId, {
+      registered_count: updated.registered_count,
+    });
 
+
+    setRegistrations((prev) => [newReg, ...prev]);
     setOlympiads((prev) =>
       prev.map((o) => (o.id === olympiadId ? updated : o))
     );
   };
-
-  /** UNREGISTER */
   const unregister = async (olympiadId: string, studentId: string) => {
     const olympiad = olympiads.find((o) => o.id === olympiadId);
     if (!olympiad) return;
 
-    const updated: Olympiad = {
+    const reg = registrations.find(
+      (r) => r.olympiad_id === olympiadId && r.student_id === studentId
+    );
+
+    if (!reg) return;
+
+
+    await unregisterOlympiad(reg.id);
+
+
+    const updated = {
       ...olympiad,
-      registrations: olympiad.registrations.filter((id) => id !== studentId),
       registered_count: olympiad.registered_count - 1,
     };
 
-    await updateOlympiad(olympiadId, updated);
+    await updateOlympiad(olympiadId, {
+      registered_count: updated.registered_count,
+    });
 
+
+    setRegistrations((prev) => prev.filter((r) => r.id !== reg.id));
     setOlympiads((prev) =>
       prev.map((o) => (o.id === olympiadId ? updated : o))
     );
@@ -163,6 +194,7 @@ export function OlympiadProvider({ children }: { children: ReactNode }) {
     <OlympiadContext.Provider
       value={{
         olympiads,
+        registrations,
         isLoading,
         addOlympiad,
         updateOlympiadItem,

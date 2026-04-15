@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, Router } from "react-router";
 import {
   Trophy,
@@ -22,7 +22,7 @@ import { updateRevenue } from "../services/organizerService";
 
 export function StudentDashboard() {
   const { user } = useAuth();
-  const { olympiads, register, unregister } = useOlympiads();
+  const { olympiads, register, unregister, registrations } = useOlympiads();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -47,9 +47,10 @@ export function StudentDashboard() {
 
   if (!user || user.role !== "student") return null;
 
-  /** MY REGISTRATIONS */
   const myRegistrations = olympiads.filter((o) =>
-    (o.registrations || []).includes(user.id)
+    registrations.some(
+      (r) => r.olympiad_id === o.id && r.student_id === user.id
+    )
   );
 
   /** FILTER */
@@ -62,9 +63,10 @@ export function StudentDashboard() {
       categoryFilter === "all" || o.category === categoryFilter;
 
     if (activeTab === "registered") {
-      return o.registrations.includes(user.id);
+      return registrations.some(
+        (r) => r.olympiad_id === o.id && r.student_id === user.id
+      );
     }
-
     return matchesSearch && matchesCategory;
   });
 
@@ -219,7 +221,11 @@ export function StudentDashboard() {
             </div>
           ) : (
             filteredOlympiads.map((olympiad, index) => {
-              const isRegistered = myRegistrations.some(r => r.id === olympiad.id);
+              const isRegistered = registrations.some(
+                (r) =>
+                  r.olympiad_id === olympiad.id &&
+                  r.student_id === user.id
+              );
               const isPast = new Date(olympiad.date) < new Date();
 
               return (
@@ -234,8 +240,8 @@ export function StudentDashboard() {
                   {/* Olympiad Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className={`p-3 rounded-2xl bg-gradient-to-br ${isRegistered
-                        ? "from-green-500 to-emerald-600"
-                        : "from-violet-500 to-purple-600"
+                      ? "from-green-500 to-emerald-600"
+                      : "from-violet-500 to-purple-600"
                       }`}>
                       <Trophy className="size-6 text-white" />
                     </div>
@@ -269,7 +275,7 @@ export function StudentDashboard() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
                       <Users className="size-4 text-violet-600 dark:text-violet-400" />
-                      <span>{olympiad.registrations.length} participants</span>
+                      <span>{olympiad.registered_count} participants</span>
                     </div>
                     {olympiad.preparation_material && (
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
@@ -284,7 +290,7 @@ export function StudentDashboard() {
                         </a>
                       </div>
                     )}
-                    
+
                   </div>
                   {/* Fee and Action */}
                   <div className="flex items-center justify-between pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
@@ -297,15 +303,18 @@ export function StudentDashboard() {
 
                     {isRegistered ? (
                       <button
-                        onClick={() => handleUnregister(olympiad.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnregister(olympiad.id);
+                        }}
                         className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
                       >
                         Cancel
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleRegister(olympiad.id)}
-                        disabled={isPast || olympiad.registrations.length >= olympiad.max_participants}
+                        onClick={(e) => { e.stopPropagation(); handleRegister(olympiad.id) }}
+                        disabled={isPast || olympiad.registered_count >= olympiad.max_participants}
                         className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/30 transition-all"
                       >
                         Register

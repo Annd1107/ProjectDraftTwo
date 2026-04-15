@@ -6,13 +6,14 @@ import { useAuth } from "../lib/auth-context";
 import {
   Plus, Calendar, MapPin, Users, Trophy,
   Trash2, DollarSign, Upload, X, Sparkles,
-  Award
+  Award, BarChart3
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../lib/language-context";
 import { payment_data, updateRevenue } from "../services/organizerService";
 import { supabase } from "../utils/supabase";
+import { OrganizerResults } from "./OrganizerResults";
 
 export function OrganizerDashboard() {
 
@@ -273,6 +274,8 @@ export function OrganizerDashboard() {
                 const isPast = new Date(olympiad.date) < new Date();
                 const participationRate = (olympiad.registrations.length / olympiad.max_participants) * 100;
 
+                const isOwner = user?.role === "organizer" && user?.id === olympiad.organizer_id;
+
                 return (
                   <motion.div
                     key={olympiad.id}
@@ -337,7 +340,7 @@ export function OrganizerDashboard() {
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-gray-600 dark:text-gray-400">Participants</span>
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
-                          {olympiad.registrations.length}/{olympiad.max_participants}
+                          {olympiad.registered_count}/{olympiad.max_participants}
                         </span>
                       </div>
                       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -353,7 +356,7 @@ export function OrganizerDashboard() {
                       <div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Revenue</div>
                         <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                          ₮{((olympiad.registrations.length * olympiad.registration_fee) / 1000).toFixed(0)}K
+                          ₮{((olympiad.registered_count * olympiad.registration_fee) / 1000).toFixed(0)}K
                         </div>
                       </div>
                       <div className={`px-3 py-1 rounded-full text-sm font-semibold ${isPast
@@ -363,7 +366,17 @@ export function OrganizerDashboard() {
                         {isPast ? "Completed" : "Active"}
                       </div>
                     </div>
+                    <div className="mt-4 pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
+                      <button
+                        onClick={() => navigate(`/organizer/results/${olympiad.id}`)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
+                      >
+                        <BarChart3 className="size-4" />
+                        <span>Үр дүн оруулах</span>
+                      </button>
+                    </div>
                   </motion.div>
+
                 );
               })}
             </div>
