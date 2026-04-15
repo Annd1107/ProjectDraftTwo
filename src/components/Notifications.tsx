@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { Bell, CheckCircle, XCircle, Info, AlertCircle, ArrowLeft, Trash2 } from "lucide-react";
+import {
+  Bell, CheckCircle, XCircle, Info, AlertCircle, ArrowLeft, Trash2,
+} from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
-import { setLocalStorage, getLocalStorage } from "../lib/storage-utils";
+import { supabase } from "../utils/supabase";
 
 interface Notification {
   id: string;
   type: "success" | "error" | "info" | "warning";
   title: string;
   message: string;
-  date: string;
+  created_at: string;
   read: boolean;
 }
 
@@ -20,6 +22,7 @@ export function Notifications() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -27,91 +30,77 @@ export function Notifications() {
       return;
     }
 
-    // Load notifications from localStorage
-    const stored = getLocalStorage(`temtseen_notifications_${user.id}`);
-    if (stored && Array.isArray(stored)) {
-      setNotifications(stored);
-    } else {
-      // Create mock notifications
-      const mockNotifications: Notification[] = [
+    fetchNotifications();
+
+
+    const channel = supabase
+      .channel("notifications-realtime")
+      .on(
+        "postgres_changes",
         {
-          id: "1",
-          type: "success",
-          title: t("notifications.registrationSuccess"),
-          message: t("notifications.registrationSuccessMsg"),
-          date: new Date(Date.now() - 86400000).toISOString(),
-          read: false,
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
         },
-        {
-          id: "2",
-          type: "info",
-          title: t("notifications.tournamentReminder"),
-          message: t("notifications.tournamentReminderMsg"),
-          date: new Date(Date.now() - 172800000).toISOString(),
-          read: false,
-        },
-        {
-          id: "3",
-          type: "warning",
-          title: t("notifications.paymentPending"),
-          message: t("notifications.paymentPendingMsg"),
-          date: new Date(Date.now() - 259200000).toISOString(),
-          read: true,
-        },
-        {
-          id: "4",
-          type: "success",
-          title: t("notifications.tournamentCreated"),
-          message: t("notifications.tournamentCreatedMsg"),
-          date: new Date(Date.now() - 345600000).toISOString(),
-          read: true,
-        },
-      ];
-      setNotifications(mockNotifications);
-      setLocalStorage(`temtseen_notifications_${user.id}`, mockNotifications);
-    }
+        (payload) => {
+          setNotifications((prev) => [payload.new as Notification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, navigate]);
 
-  const markAsRead = (id: string) => {
-    const updated = notifications.map(n => 
-      n.id === id ? { ...n, read: true } : n
+  const fetchNotifications = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) setNotifications(data as Notification[]);
+    setLoading(false);
+  };
+
+  const markAsRead = async (id: string) => {
+    await supabase.from("notifications").update({ read: true }).eq("id", id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-    setNotifications(updated);
-    if (user) {
-      setLocalStorage(`temtseen_notifications_${user.id}`, updated);
-    }
   };
 
-  const markAllAsRead = () => {
-    const updated = notifications.map(n => ({ ...n, read: true }));
-    setNotifications(updated);
-    if (user) {
-      setLocalStorage(`temtseen_notifications_${user.id}`, updated);
-    }
+  const markAllAsRead = async () => {
+    if (!user) return;
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
-  const deleteNotification = (id: string) => {
-    const updated = notifications.filter(n => n.id !== id);
-    setNotifications(updated);
-    if (user) {
-      setLocalStorage(`temtseen_notifications_${user.id}`, updated);
-    }
+  const deleteNotification = async (id: string) => {
+    await supabase.from("notifications").delete().eq("id", id);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const clearAll = () => {
+  const clearAll = async () => {
+    if (!user) return;
     if (confirm(t("notifications.confirmClear"))) {
+      await supabase.from("notifications").delete().eq("user_id", user.id);
       setNotifications([]);
-      if (user) {
-        setLocalStorage(`temtseen_notifications_${user.id}`, []);
-      }
     }
   };
 
-  const filteredNotifications = filter === "unread" 
-    ? notifications.filter(n => !n.read)
-    : notifications;
+  const filteredNotifications =
+    filter === "unread"
+      ? notifications.filter((n) => !n.read)
+      : notifications;
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -127,28 +116,19 @@ export function Notifications() {
   };
 
   const getBgColor = (type: string, read: boolean) => {
-    if (read) {
-      return "bg-gray-50 dark:bg-gray-800";
-    }
+    if (read) return "bg-gray-50 dark:bg-gray-800";
     switch (type) {
-      case "success":
-        return "bg-green-50 dark:bg-green-900/20";
-      case "error":
-        return "bg-red-50 dark:bg-red-900/20";
-      case "warning":
-        return "bg-yellow-50 dark:bg-yellow-900/20";
-      default:
-        return "bg-blue-50 dark:bg-blue-900/20";
+      case "success": return "bg-green-50 dark:bg-green-900/20";
+      case "error":   return "bg-red-50 dark:bg-red-900/20";
+      case "warning": return "bg-yellow-50 dark:bg-yellow-900/20";
+      default:        return "bg-blue-50 dark:bg-blue-900/20";
     }
   };
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -163,13 +143,9 @@ export function Notifications() {
               {t("notifications.title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              {unreadCount > 0 ? (
-                <>
-                  {t("notifications.unreadCount").replace("{count}", unreadCount.toString())}
-                </>
-              ) : (
-                t("notifications.noUnread")
-              )}
+              {unreadCount > 0
+                ? t("notifications.unreadCount").replace("{count}", unreadCount.toString())
+                : t("notifications.noUnread")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -193,7 +169,6 @@ export function Notifications() {
         </div>
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setFilter("all")}
@@ -217,8 +192,13 @@ export function Notifications() {
         </button>
       </div>
 
-      {/* Notifications List */}
-      {filteredNotifications.length === 0 ? (
+      {loading && (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          Loading notifications...
+        </div>
+      )}
+
+      {!loading && filteredNotifications.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
           <Bell className="size-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -236,9 +216,7 @@ export function Notifications() {
               className={`rounded-lg border border-gray-200 dark:border-gray-700 p-4 transition-colors ${getBgColor(notification.type, notification.read)}`}
             >
               <div className="flex gap-4">
-                <div className="flex-shrink-0 pt-1">
-                  {getIcon(notification.type)}
-                </div>
+                <div className="flex-shrink-0 pt-1">{getIcon(notification.type)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4 mb-1">
                     <h3 className={`font-semibold ${notification.read ? "text-gray-700 dark:text-gray-300" : "text-gray-900 dark:text-gray-100"}`}>
@@ -265,7 +243,7 @@ export function Notifications() {
                     {notification.message}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
-                    {new Date(notification.date).toLocaleString()}
+                    {new Date(notification.created_at).toLocaleString()}
                   </p>
                 </div>
               </div>

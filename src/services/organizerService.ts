@@ -17,7 +17,7 @@ export async function payment_data(id: string) {
   return { data };
 }
 export async function updateRevenue(organizerId: string, amount: number) {
-  // Get current revenue
+
   const { data: organizer, error: fetchError } = await supabase
     .from("Organizers")
     .select("revenue")
@@ -31,7 +31,7 @@ export async function updateRevenue(organizerId: string, amount: number) {
 
   const newRevenue = (organizer?.revenue || 0) + amount;
 
-  // Update revenue
+
   const { error: updateError } = await supabase
     .from("Organizers")
     .update({ revenue: newRevenue })
