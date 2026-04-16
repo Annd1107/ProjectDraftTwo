@@ -5,6 +5,7 @@ import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { useAchievements } from "../lib/achievement-context";
 import { getPlacementsByStudent } from "../lib/placements-api";
+import { acceleratedValues } from "motion/react";
 
 
 export function Achievements() {
@@ -16,8 +17,16 @@ export function Achievements() {
   
 const [placements, setPlacements] = useState([]);
 
+  useEffect(() => {
+  const load = async () => {
+    if (!user) return;
+    const data = await getPlacementsByStudent(user.id);
+    setPlacements(data as never[]);
+  };
 
-
+  load();
+}, [user]);
+      let medal = "";
   if (!user) {
     navigate("/login");
     return null;
@@ -36,13 +45,7 @@ const [placements, setPlacements] = useState([]);
     : achievements.filter(a => a.category === filterCategory);
 
   // Calculate statistics
-  const totalAchievements = achievements.length;
-  const goldMedals = achievements.filter(a => a.medal === "gold").length;
-  const silverMedals = achievements.filter(a => a.medal === "silver").length;
-  const bronzeMedals = achievements.filter(a => a.medal === "bronze").length;
-  const averagePlacement = achievements.length > 0 
-    ? (achievements.reduce((sum, a) => sum + a.placement, 0) / achievements.length).toFixed(1)
-    : "0";
+  
 
   // Get unique categories
   const categories = Array.from(new Set(achievements.map(a => a.category)));
@@ -84,15 +87,31 @@ const [placements, setPlacements] = useState([]);
       return <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-semibold">{placement}{t("achievements.place")}</span>;
     }
   };
-  useEffect(() => {
-  const load = async () => {
-    if (!user) return;
-    const data = await getPlacementsByStudent(user.id);
-    setPlacements(data);
-  };
+  const formattedPlacements = placements.map((p: any) => {
 
-  load();
-}, [user]);
+
+  if (p.Ranking === 1) medal = "gold";
+  else if (p.Ranking === 2) medal = "silver";
+  else if (p.Ranking === 3) medal = "bronze";
+  return {
+    id: p.id,
+    title: p.olympiad?.title || "Unknown", // or fetch from Olympiad table later
+    category: p.olympiad?.category || "Unknown",
+    placement: p.Ranking,
+    medal,
+    score: p.Score,
+    date: p.created_at || new Date(),
+    location: p.olympiad?.location || "Unknown",
+    totalParticipants: p.olympiad?.registered_count
+  };
+});
+const totalAchievements = formattedPlacements.length;
+  const goldMedals = formattedPlacements.filter(a => a.medal === "gold").length;
+  const silverMedals = formattedPlacements.filter(a => a.medal === "silver").length;
+  const bronzeMedals = formattedPlacements.filter(a => a.medal === "bronze").length;
+  const averagePlacement = formattedPlacements.length > 0 
+    ? (formattedPlacements.reduce((sum, a) => sum + a.placement, 0) / formattedPlacements.length).toFixed(1)
+    : "0";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -197,7 +216,7 @@ const [placements, setPlacements] = useState([]);
         </div>
 
         {/* Achievements List */}
-        {filteredAchievements.length === 0 ? (
+        {formattedPlacements.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
             <Trophy className="size-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -209,7 +228,7 @@ const [placements, setPlacements] = useState([]);
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredAchievements.map((achievement) => (
+            {formattedPlacements.map((achievement) => (
               <div
                 key={achievement.id}
                 className={`rounded-lg shadow-sm border p-6 transition-all hover:shadow-md ${getMedalBg(achievement.medal)}`}
@@ -225,7 +244,7 @@ const [placements, setPlacements] = useState([]);
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                          {achievement.tournamentTitle}
+                          {achievement.title}
                         </h3>
                         <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm">
                           {achievement.category}

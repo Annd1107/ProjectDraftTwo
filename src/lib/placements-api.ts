@@ -15,7 +15,7 @@ export async function getPlacementsByOlympiad(olympiadId: string) {
   const { data, error } = await supabase
     .from("Placements")
     .select("*")
-    .eq("olympiad_id", olympiadId)
+    .eq("OlympiadId", olympiadId)
     .order("rank", { ascending: true });
 
   if (error) throw error;
@@ -26,9 +26,8 @@ export async function getPlacementsByOlympiad(olympiadId: string) {
 export async function getPlacementsByStudent(studentId: string) {
   const { data, error } = await supabase
     .from("Placements")
-    .select("*")
-    .eq("student_id", studentId)
-    .order("created_at", { ascending: false });
+    .select("*,  olympiad : OlympiadId( title, category, location, registered_count )")
+    .eq("StudentId", studentId)
 
   if (error) throw error;
   return data ?? [];

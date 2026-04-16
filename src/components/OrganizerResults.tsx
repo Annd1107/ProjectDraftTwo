@@ -73,20 +73,19 @@ const getStudentName = (studentId: string) => {
     );
   }
 
-  const handleAddResult = () => {
-    if (!newStudentName || !newScore) return;
+const handleAddResult = () => {
+  if (!newStudentName || !newScore) return;
 
-    const newResult: Result = {
-      studentId: Date.now().toString(),
-      score: parseFloat(newScore),
-      olympiad_id : tournament.id
-    };
-
-    const updatedResults = [...results, newResult];
-    setResults(updatedResults);
-    setNewStudentName("");
-    setNewScore("");
+  const newResult: Result = {
+    studentId: newStudentName, // now it's already ID
+    score: parseFloat(newScore),
+    olympiad_id: tournament.id
   };
+
+  setResults([...results, newResult]);
+  setNewStudentName("");
+  setNewScore("");
+};
 
   const handleDeleteResult = (studentId: string) => {
     setResults(results.filter(r => r.studentId !== studentId));
@@ -304,13 +303,18 @@ const chartData = results
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Сурагчийн нэр
                   </label>
-                  <input
-                    type="text"
-                    value={newStudentName}
-                    onChange={(e) => setNewStudentName(e.target.value)}
-                    placeholder="Нэр оруулах"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                  />
+                 <select
+  value={newStudentName}
+  onChange={(e) => setNewStudentName(e.target.value)}
+  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl"
+>
+  <option value="">Сурагч сонгох</option>
+  {students.map((s) => (
+    <option key={s.id} value={s.id}>
+      {s.name}
+    </option>
+  ))}
+</select>
                 </div>
 
                 <div>
