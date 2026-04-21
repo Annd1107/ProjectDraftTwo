@@ -90,15 +90,24 @@ const handleAddResult = () => {
   const handleDeleteResult = (studentId: string) => {
     setResults(results.filter(r => r.studentId !== studentId));
   };
+const handleCalculateRanks = () => {
+  const sorted = [...results].sort((a, b) => b.score - a.score);
 
-  const handleCalculateRanks = () => {
-    const sorted = [...results].sort((a, b) => b.score - a.score);
-    const ranked = sorted.map((result, index) => ({
+  let currentRank = 1;
+
+  const ranked = sorted.map((result, index) => {
+    if (index > 0 && result.score < sorted[index - 1].score) {
+      currentRank++;
+    }
+
+    return {
       ...result,
-      rank: index + 1,
-    }));
-    setResults(ranked);
-  };
+      rank: currentRank,
+    };
+  });
+
+  setResults(ranked);
+};
 const handleSaveResults = async () => {
   if (!id) return;
 
@@ -121,15 +130,22 @@ const handleSaveResults = async () => {
     return;
   }
 
-  const sorted = [...results].sort((a, b) => b.score - a.score);
+   const sorted = [...results].sort((a, b) => b.score - a.score);
 
-  const ranked = sorted.map((r, i) => ({
-    ...r,
-    rank: i + 1,
-  }));
+  let currentRank = 1;
+
+  const ranked = sorted.map((r, i) => {
+    if (i > 0 && r.score < sorted[i - 1].score) {
+      currentRank++;
+    }
+
+    return {
+      ...r,
+      rank: currentRank,
+    };
+  });
 
   setResults(ranked);
-
   const payload = ranked.map(r => ({
       id: crypto.randomUUID(),
        OlympiadId: id,
@@ -174,7 +190,7 @@ const chartData = results
   const getMedalIcon = (rank?: number) => {
     if (!rank) return null;
     if (rank === 1) return <Trophy className="size-6 text-yellow-500" />;
-    if (rank === 2) return <Medal className="size-6 text-gray-400" />;
+    if (rank === 2) return <Medal className="size-6 text-gray-600" />;
     if (rank === 3) return <Award className="size-6 text-amber-600" />;
     return null;
   };
@@ -182,7 +198,7 @@ const chartData = results
   const getMedalColor = (rank?: number) => {
     if (!rank) return "";
     if (rank === 1) return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
-    if (rank === 2) return "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700";
+    if (rank === 2) return "bg-silver-600 dark:bg-silver-50/20 border-silver-300 dark:border-silver-100";
     if (rank === 3) return "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800";
     return "";
   };

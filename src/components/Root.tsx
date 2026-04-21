@@ -9,6 +9,7 @@ import { supabase } from "../utils/supabase";
 
 export function Root() {
   const [hasNotifications, setHasNotifications] = useState(false);
+  const [read, setRead] = useState(false);
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -28,27 +29,39 @@ export function Root() {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  const hideDot = location.pathname === "/notifications";
   
     // ✅ fetch if user has ANY notifications
-    useEffect(() => {
-      if (!user) return;
-  
-      const fetchNotifications = async () => {
-    const { data, error } = await supabase
+  useEffect(() => {
+  if (!user) return;
+
+  const channel = supabase
+    .channel("notifications-channel")
+   .on(
+  "postgres_changes",
+  {
+    event: "*",
+    schema: "public",
+    table: "notifications",
+    filter: `user_id=eq.${user.id}`,
+  },
+  async () => {
+    const { data } = await supabase
       .from("notifications")
       .select("id")
       .eq("user_id", user.id)
-      .eq("read", false)
-  
-    if (!error) {
-      setHasNotifications((data?.length ?? 0) > 0);
-    }
+      .eq("read", false);
+
+    setHasNotifications((data?.length ?? 0) > 0);
+  }
+)
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
   };
+}, [user]);
   
   
-      fetchNotifications();
-    }, [user]);
     useEffect(() => {
     if (location.pathname === "/notifications" && user) {
       const markAsRead = async () => {
@@ -107,15 +120,17 @@ export function Root() {
                   <NavLink to={user.role === "organizer" ? "/organizer" : "/student"}>
                     {t("nav.dashboard")}
                   </NavLink>
-                  <NavLink to={user.role === "student" ? "/achievements" : "/rankings"}>{user.role === "student" ?  t("nav.achievements") : "Rankings"}</NavLink>
+                  {user.role === "student" ? (         <NavLink to={"/achievements"}>{ t("nav.achievements") }</NavLink>) : ("")}
+         
                   <Link
                     to="/notifications"
                     className="hidden sm:flex relative p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                   >
+                    
                     <Bell className="size-5" />
-                    {hasNotifications && !hideDot && (
-                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                    )}
+                    {hasNotifications === true ?(
+                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"> </span>
+                    ) : ( <span className="absolute top-1 right-1 h-2 w-2  rounded-full"> </span>)}
                   </Link>
                   <NavLink to="/profile">
                     <User className="size-5" />

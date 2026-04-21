@@ -7,6 +7,7 @@ export async function sendPaymentNotification(userId: string, olympiadName: stri
     type: "success",
     title: "Payment Successful",
     message: `Your payment for "${olympiadName}" has been received. You are now officially registered!`,
+    read : false
   });
 
   if (error) console.error("Failed to send notification:", error.message);

@@ -59,7 +59,7 @@ export function Notifications() {
     const { data, error } = await supabase
       .from("notifications")
       .select("*")
-      .order("created_at", { ascending: false });
+      .eq("user_id", user?.id)
 
     if (!error && data) setNotifications(data as Notification[]);
     setLoading(false);
@@ -89,10 +89,8 @@ export function Notifications() {
 
   const clearAll = async () => {
     if (!user) return;
-    if (confirm(t("notifications.confirmClear"))) {
       await supabase.from("notifications").delete().eq("user_id", user.id);
       setNotifications([]);
-    }
   };
 
   const filteredNotifications =

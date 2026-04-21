@@ -40,7 +40,7 @@ export function PaymentModal({
 
     // ✅ 2. insert payment
     const { error } = await supabase.from("payment").insert({
-      id: Math.random().toString(36).substr(2, 9), // text id
+       id: Math.random().toString(36).substr(2, 9),
       student_id: user.id,
       olympiad_id: olympiadId,
       total_fee: fee,
@@ -49,6 +49,8 @@ export function PaymentModal({
       payment_method: paymentMethod,
       status: "paid",
     });
+    await updateRevenue(organizerId, fee);
+
 
     if (error) {
       console.error(error);
@@ -66,10 +68,9 @@ export function PaymentModal({
     setIsProcessing(false);
     setIsSuccess(true);
 
-    setTimeout(() => {
-      setIsSuccess(false);
-      onConfirm(); // optional UI refresh
-    }, 1200);
+   setTimeout(() => {
+  onConfirm(); // closes modal
+}, 1100);
 
   } catch (err) {
     console.error(err);
