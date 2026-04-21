@@ -27,7 +27,7 @@ export function StudentDashboard() {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("All");
   const [activeTab, setActiveTab] =
     useState<"available" | "registered">("available");
 
