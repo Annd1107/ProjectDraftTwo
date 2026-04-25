@@ -38,7 +38,7 @@ export function StudentDashboard() {
     fee: number;
   } | null>(null);
   const [showUnregisterModal, setShowUnregisterModal] = useState(false);
-const [selectedUnregisterId, setSelectedUnregisterId] = useState<string | null>(null);
+  const [selectedUnregisterId, setSelectedUnregisterId] = useState<string | null>(null);
 
   /** AUTH GUARD */
   useEffect(() => {
@@ -101,34 +101,34 @@ const [selectedUnregisterId, setSelectedUnregisterId] = useState<string | null>(
   };
 
   const handleUnregister = async (id: string) => {
-      const olympiad = olympiads.find((o) => o.id === id);
-      if (olympiad) {
-        await updateRevenue(olympiad.organizer_id, -(olympiad.registration_fee ?? 0));
-      }
-      await unregister(id, user.id);
-    
+    const olympiad = olympiads.find((o) => o.id === id);
+    if (olympiad) {
+      await updateRevenue(olympiad.organizer_id, -(olympiad.registration_fee ?? 0));
+    }
+    await unregister(id, user.id);
+
   };
   const handleUnregisterClick = (id: string) => {
-  setSelectedUnregisterId(id);
-  setShowUnregisterModal(true);
-};
-const confirmUnregister = async () => {
-  if (!selectedUnregisterId || !user) return;
+    setSelectedUnregisterId(id);
+    setShowUnregisterModal(true);
+  };
+  const confirmUnregister = async () => {
+    if (!selectedUnregisterId || !user) return;
 
-  const olympiad = olympiads.find(o => o.id === selectedUnregisterId);
+    const olympiad = olympiads.find(o => o.id === selectedUnregisterId);
 
-  if (olympiad) {
-    await updateRevenue(
-      olympiad.organizer_id,
-      -(olympiad.registration_fee ?? 0)
-    );
-  }
+    if (olympiad) {
+      await updateRevenue(
+        olympiad.organizer_id,
+        -(olympiad.registration_fee ?? 0)
+      );
+    }
 
-  await unregister(selectedUnregisterId, user.id);
+    await unregister(selectedUnregisterId, user.id);
 
-  setShowUnregisterModal(false);
-  setSelectedUnregisterId(null);
-};
+    setShowUnregisterModal(false);
+    setSelectedUnregisterId(null);
+  };
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -209,48 +209,46 @@ const confirmUnregister = async () => {
             placeholder="Search olympiads..."
             className="flex-1 p-3 rounded-xl border"
           />
-           <div className="relative">
-              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="pl-12 pr-8 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none min-w-[200px] transition-all"
-              >
-                  {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-              </select>
-            </div>
-
-            {/* Tab Buttons */}
-            <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl">
-              <button
-                onClick={() => setActiveTab("available")}
-                className={`px-6 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === "available"
-                    ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                }`}
-              >
-                Available
-              </button>
-              <button
-                onClick={() => setActiveTab("registered")}
-                className={`px-6 py-2 rounded-xl font-medium transition-all ${
-                  activeTab === "registered"
-                    ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-                }`}
-              >
-                My Events ({myRegistrations.length})
-              </button>
-            </div>
+          <div className="relative">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="pl-12 pr-8 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none min-w-[200px] transition-all"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </div>
-        
 
-        
+          {/* Tab Buttons */}
+          <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl">
+            <button
+              onClick={() => setActiveTab("available")}
+              className={`px-6 py-2 rounded-xl font-medium transition-all ${activeTab === "available"
+                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                }`}
+            >
+              Available
+            </button>
+            <button
+              onClick={() => setActiveTab("registered")}
+              className={`px-6 py-2 rounded-xl font-medium transition-all ${activeTab === "registered"
+                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                }`}
+            >
+              My Events ({myRegistrations.length})
+            </button>
+          </div>
+        </div>
+
+
+
 
         {/* GRID */}
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -345,10 +343,10 @@ const confirmUnregister = async () => {
 
                     {isRegistered ? (
                       <button
-                         onClick={(e) => {
-  e.stopPropagation();
-  handleUnregisterClick(olympiad.id);
-}}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnregisterClick(olympiad.id);
+                        }}
                         className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
                       >
                         Cancel
@@ -369,7 +367,7 @@ const confirmUnregister = async () => {
           )}
         </div>
       </div>
-           {/* PAYMENT */}
+      {/* PAYMENT */}
       {showPaymentModal && selectedOlympiad && (
         <PaymentModal
           tournamentTitle={selectedOlympiad.title}
@@ -381,35 +379,35 @@ const confirmUnregister = async () => {
         />
       )}
       {showUnregisterModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-        Бүртгэл цуцлах уу?
-      </h2>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+              Бүртгэл цуцлах уу?
+            </h2>
 
-      <p className="text-gray-600 dark:text-gray-400 mb-6">
-        Та энэ тэмцээнээс бүртгэлээ цуцлахдаа итгэлтэй байна уу?
-      </p>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Та энэ тэмцээнээс бүртгэлээ цуцлахдаа итгэлтэй байна уу?
+            </p>
 
-      <div className="flex gap-3">
-        <button
-          onClick={confirmUnregister}
-          className="flex-1 py-2 bg-red-600 text-white rounded-xl"
-        >
-          Тийм
-        </button>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmUnregister}
+                className="flex-1 py-2 bg-red-600 text-white rounded-xl"
+              >
+                Тийм
+              </button>
 
-        <button
-          onClick={() => setShowUnregisterModal(false)}
-          className="flex-1 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl"
-        >
-          Үгүй
-        </button>
-      </div>
+              <button
+                onClick={() => setShowUnregisterModal(false)}
+                className="flex-1 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl"
+              >
+                Үгүй
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
-    </div> 
-    );
-  }
-  
+  );
+}
+
