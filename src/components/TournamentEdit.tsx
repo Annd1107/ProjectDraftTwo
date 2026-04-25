@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getOlympiads, updateOlympiad } from "../lib/tournament-api";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
+import { sendOlympiadUpdateNotif } from "../lib/notification-utils";
 
 export function TournamentEdit() {
   const { id } = useParams();
@@ -88,7 +89,9 @@ export function TournamentEdit() {
       max_participants: maxParticipants,
       preparation_material: prep,
     });
+    console.log("Sending notification...", id, title);
 
+    await sendOlympiadUpdateNotif(id!, title);
     navigate(`/tournament/${id}`);
   };
 

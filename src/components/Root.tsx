@@ -29,40 +29,52 @@ export function Root() {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  
-    // ✅ fetch if user has ANY notifications
+
+  // ✅ fetch if user has ANY notifications
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const channel = supabase
-    .channel("notifications-channel")
-   .on(
-  "postgres_changes",
-  {
-    event: "*",
-    schema: "public",
-    table: "notifications",
-    filter: `user_id=eq.${user.id}`,
-  },
-  async () => {
-    const { data } = await supabase
-      .from("notifications")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("read", false);
+    const fetchNotifications = async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("read", false);
 
-    setHasNotifications((data?.length ?? 0) > 0);
-  }
-)
-    .subscribe();
+      setHasNotifications((data?.length ?? 0) > 0);
+    };
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [user]);
-  
-  
-    useEffect(() => {
+    fetchNotifications(); // ✅ IMPORTANT
+
+    const channel = supabase
+      .channel("notifications-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        async () => {
+          const { data } = await supabase
+            .from("notifications")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("read", false);
+
+          setHasNotifications((data?.length ?? 0) > 0);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+
+  useEffect(() => {
     if (location.pathname === "/notifications" && user) {
       const markAsRead = async () => {
         await supabase
@@ -70,7 +82,7 @@ export function Root() {
           .update({ read: true })
           .eq("user_id", user.id);
       };
-  
+
       markAsRead();
       setHasNotifications(false);
     }
@@ -80,11 +92,10 @@ export function Root() {
     <Link
       to={to}
       onClick={onClick}
-      className={`px-4 py-2 rounded-xl font-medium transition-all ${
-        isActive(to)
+      className={`px-4 py-2 rounded-xl font-medium transition-all ${isActive(to)
           ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/30'
           : 'text-gray-700 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-950/30'
-      }`}
+        }`}
     >
       {children}
     </Link>
@@ -114,23 +125,23 @@ export function Root() {
             <nav className="hidden lg:flex items-center gap-2">
               <NavLink to="/">{t("nav.home")}</NavLink>
               <NavLink to="/about">{t("nav.about")}</NavLink>
-              
+
               {user && (
                 <>
                   <NavLink to={user.role === "organizer" ? "/organizer" : "/student"}>
                     {t("nav.dashboard")}
                   </NavLink>
-                  {user.role === "student" ? (         <NavLink to={"/achievements"}>{ t("nav.achievements") }</NavLink>) : ("")}
-         
+                  {user.role === "student" ? (<NavLink to={"/achievements"}>{t("nav.achievements")}</NavLink>) : ("")}
+
                   <Link
                     to="/notifications"
                     className="hidden sm:flex relative p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                   >
-                    
+
                     <Bell className="size-5" />
-                    {hasNotifications === true ?(
-                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"> </span>
-                    ) : ( <span className="absolute top-1 right-1 h-2 w-2  rounded-full"> </span>)}
+                    {hasNotifications && (
+                      <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                    )}
                   </Link>
                   <NavLink to="/profile">
                     <User className="size-5" />
@@ -205,7 +216,7 @@ export function Root() {
                 <NavLink to="/about" onClick={() => setMobileMenuOpen(false)}>
                   {t("nav.about")}
                 </NavLink>
-                
+
                 {user && (
                   <>
                     <NavLink
