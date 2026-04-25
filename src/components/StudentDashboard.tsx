@@ -408,6 +408,9 @@ export function StudentDashboard() {
         </div>
       )}
     </div>
-  );
-}
-
+  </div>
+)}
+    </div> 
+    );
+  }
+  
