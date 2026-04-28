@@ -4,6 +4,7 @@ import { getOlympiads, updateOlympiad } from "../lib/tournament-api";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
 import { sendOlympiadUpdateNotif } from "../lib/notification-utils";
+import { register } from "module";
 
 export function TournamentEdit() {
   const { id } = useParams();
@@ -91,7 +92,8 @@ export function TournamentEdit() {
     });
     console.log("Sending notification...", id, title);
 
-    await sendOlympiadUpdateNotif(id!, title);
+    
+    await sendOlympiadUpdateNotif(id!, title, "Olympiad Updated");
     navigate(`/tournament/${id}`);
   };
 
