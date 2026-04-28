@@ -122,15 +122,15 @@ export function StudentDashboard() {
             <div>
               <div className="flex items-center gap-2 text-white/80 mb-2">
                 <Sparkles className="size-4" />
-                Student Portal
+                Сурагчдын самбар
               </div>
 
               <h1 className="text-4xl font-bold text-white">
-                Welcome, {user.name}
+                Тавтай морил, {user.name}
               </h1>
 
               <p className="text-purple-100">
-                {user.school} • Grade {user.grade}
+                {user.school}, {user.grade}-р анги
               </p>
             </div>
 
@@ -139,7 +139,7 @@ export function StudentDashboard() {
               className="px-5 py-3 bg-white text-purple-700 rounded-xl font-semibold"
             >
               <Award className="inline size-5 mr-2" />
-              Achievements
+              Амжилт
             </Link>
           </div>
 
@@ -147,12 +147,12 @@ export function StudentDashboard() {
           <div className="grid grid-cols-4 gap-4 mt-8 text-white">
             <div>
               <div className="text-2xl font-bold">{olympiads.length}</div>
-              <div className="text-sm opacity-80">Total Olympiads</div>
+              <div className="text-sm opacity-80">Нийт олимпиад</div>
             </div>
 
             <div>
               <div className="text-2xl font-bold">{myRegistrations.length}</div>
-              <div className="text-sm opacity-80">My Registrations</div>
+              <div className="text-sm opacity-80">Миний бүртгэлүүд</div>
             </div>
 
             <div>
@@ -163,7 +163,7 @@ export function StudentDashboard() {
                   ).length
                 }
               </div>
-              <div className="text-sm opacity-80">Upcoming</div>
+              <div className="text-sm opacity-80">Дараагийн</div>
             </div>
 
             <div>
@@ -174,7 +174,7 @@ export function StudentDashboard() {
                   ).length
                 }
               </div>
-              <div className="text-sm opacity-80">Completed</div>
+              <div className="text-sm opacity-80">Дууссан</div>
             </div>
           </div>
         </motion.div>
@@ -202,10 +202,10 @@ export function StudentDashboard() {
 
           <div className="flex bg-gray-100 rounded-xl">
             <button onClick={() => setActiveTab("available")}>
-              Available
+              Боломжит
             </button>
             <button onClick={() => setActiveTab("registered")}>
-              My Events
+              Миний үйл явдал
             </button>
           </div>
         </div>
@@ -248,7 +248,7 @@ export function StudentDashboard() {
                     {isRegistered && (
                       <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-semibold flex items-center gap-1">
                         <CheckCircle className="size-4" />
-                        Registered
+                        Бүртгэгдсэн
                       </div>
                     )}
                   </div>
@@ -275,7 +275,7 @@ export function StudentDashboard() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
                       <Users className="size-4 text-violet-600 dark:text-violet-400" />
-                      <span>{olympiad.registered_count} participants</span>
+                      <span>{olympiad.registered_count} Оролцогчид </span>
                     </div>
                     {olympiad.preparation_material && (
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
@@ -296,9 +296,9 @@ export function StudentDashboard() {
                   <div className="flex items-center justify-between pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
                     <div>
                       <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                        ₮{olympiad.registration_fee.toLocaleString()}
+                        {olympiad.registration_fee.toLocaleString()}₮
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">Registration fee</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Бүртгэлийн төлбөр</div>
                     </div>
 
                     {isRegistered ? (
@@ -309,7 +309,7 @@ export function StudentDashboard() {
                         }}
                         className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
                       >
-                        Cancel
+                        Болих
                       </button>
                     ) : (
                       <button
@@ -317,7 +317,7 @@ export function StudentDashboard() {
                         disabled={isPast || olympiad.registered_count >= olympiad.max_participants}
                         className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/30 transition-all"
                       >
-                        Register
+                        Бүртгүүлэх
                       </button>
                     )}
                   </div>

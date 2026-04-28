@@ -27,8 +27,6 @@ export function TournamentEdit() {
       const found = data.find((o: any) => o.id === id);
 
       if (!found) return navigate("/");
-
-      // owner check
       if (user?.id !== found.organizer_id) {
         return navigate("/");
       }
