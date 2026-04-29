@@ -195,7 +195,7 @@ export function Signup() {
                     onChange={(e) => setName(e.target.value)}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="Your full name"
+                    placeholder="Таны овог нэр"
                   />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="your@email.com"
+                    placeholder="Email оруулна уу"
                   />
                 </div>
               </div>
@@ -258,7 +258,7 @@ export function Signup() {
                         onChange={(e) => setSchool(e.target.value)}
                         required
                         className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                        placeholder="Your school name"
+                        placeholder="Таны сургуулийн нэр"
                       />
                     </div>
                   </div>
@@ -288,7 +288,7 @@ export function Signup() {
                         <option value="">Анги сонгох</option>
                         {[9, 10, 11, 12].map((g) => (
                           <option key={g} value={g}>
-                            Grade {g}
+                             {g}-р анги
                           </option>
                         ))}
                       </select>

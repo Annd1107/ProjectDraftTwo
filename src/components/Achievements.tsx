@@ -90,9 +90,9 @@ const [placements, setPlacements] = useState([]);
   const formattedPlacements = placements.map((p: any) => {
 
 
-  if (p.Ranking === 1) medal = "gold";
-  else if (p.Ranking === 2) medal = "silver";
-  else if (p.Ranking === 3) medal = "bronze";
+  if (p.Ranking === 1) medal = "Алт";
+  else if (p.Ranking === 2) medal = "Мөнгө";
+  else if (p.Ranking === 3) medal = "Хүрэл";
   return {
     id: p.id,
     title: p.olympiad?.title || "Unknown", // or fetch from Olympiad table later

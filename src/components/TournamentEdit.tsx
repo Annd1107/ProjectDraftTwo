@@ -94,7 +94,7 @@ export function TournamentEdit() {
 
   return (
     <div className="max-w-2xl mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6">Edit Tournament</h1>
+      <h1 className="text-2xl font-bold mb-6">Засах</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2" />

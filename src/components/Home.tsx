@@ -1,6 +1,6 @@
 import { useState, useMemo} from "react";
 import { Link } from "react-router";
-import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap } from "lucide-react";
+import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap, Moon, Sun } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
@@ -8,8 +8,7 @@ import { motion } from "motion/react";
 import { useEvents } from "../lib/event-context";
 import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
 
-  const logo = "src/assets/logopurple.png";
-
+const logo = "src/assets/logopurple.png";
 
 const CATS = [
   { id: "math", label: "Математик", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
@@ -26,13 +25,12 @@ const MONTHS = [
 ];
 
 function OlympiadCalendar() {
-
   const [selectedKey, setSelectedKey] = useState(null);
-   const { events: dbEvents, loading } = useEvents();
+  const { events: dbEvents, loading } = useEvents();
   const events = useMemo(() => transformEvents(dbEvents), [dbEvents]);
   const eventMap = useMemo(() => buildEventMap(events), [events]);
-    const now = new Date();
-      const [cursor, setCursor] = useState(new Date(now.getFullYear(), now.getMonth(),1));
+  const now = new Date();
+  const [cursor, setCursor] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
 
   const firstDay    = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay();
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
@@ -201,24 +199,45 @@ function OlympiadCalendar() {
   );
 }
 
-
-
 // ---------------------------------------------------------------------------
 // Home page
 // ---------------------------------------------------------------------------
 export function Home() {
   const { user } = useAuth();
   const { t }    = useLanguage();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDark = () => {
+    setDarkMode(prev => !prev);
+    document.documentElement.classList.toggle("dark");
+  };
 
   return (
     <div className="min-h-screen w-screen">
 
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
-        <div className="p-8 relative flex items-center justify-center bg-white lg:p-16 ">
-    <img src={logo} alt="Logo" className="size-150"/>
+
+        {/* Dark mode toggle button — floats top-right over hero */}
+        <button
+          onClick={toggleDark}
+          aria-label="Toggle dark mode"
+          className="absolute top-6 right-6 z-20 p-2.5 rounded-full
+                     bg-violet-100 dark:bg-gray-700
+                     text-violet-600 dark:text-yellow-400
+                     hover:bg-violet-200 dark:hover:bg-gray-600
+                     shadow-md transition-all duration-300"
+        >
+          {darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
+
+        {/* Left — Logo */}
+        <div className="p-8 relative flex items-center justify-center bg-white dark:bg-gray-900 lg:p-16 transition-colors duration-300">
+          <img src={logo} alt="Logo" className="size-150" />
         </div>
 
-        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:from-gray-900 dark:via-purple-950/30 dark:to-violet-950/50">
+        {/* Right — Content */}
+        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-300">
           <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
 
             <motion.div
@@ -302,13 +321,9 @@ export function Home() {
               </div>
             </motion.div>
           </div>
-          
         </div>
-
-
-
-        
       </section>
+
       {/* ── Olympiad Calendar ─────────────────────────────────────────────── */}
       <OlympiadCalendar />
 
@@ -328,8 +343,6 @@ export function Home() {
               </span>
             </h2>
           </motion.div>
-
-          
 
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Student card */}
@@ -442,7 +455,7 @@ export function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-3xl border border-violet-200/50 dark:border-violet-800/50 hover:shadow-xl hover: transition-all duration-300"
+                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-3xl border border-violet-200/50 dark:border-violet-800/50 hover:shadow-xl transition-all duration-300"
               >
                 <div className={`inline-flex p-4 bg-${feature.color} rounded-2xl shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="size-8 text-white" />
@@ -455,7 +468,6 @@ export function Home() {
         </div>
       </section>
 
-      
     </div>
   );
 }

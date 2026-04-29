@@ -23,12 +23,13 @@ export function OrganizerResults() {
   const { t } = useLanguage();
   
   const [results, setResults] = useState<Result[]>([]);
-  const [newStudentName, setNewStudentName] = useState("");
+  const [newStudentID, setNewStudentID] = useState("");
   const [newScore, setNewScore] = useState("");
   const [isPublished, setIsPublished] = useState(false);
 
   const tournament = getById(id || "");
   const [students, setStudents] = useState<Student[]>([]);
+  const [isManualRanking, setIsManualRanking] = useState(false);
 
   useEffect(() => {
     if (!user || user.role !== "organizer") {
@@ -74,31 +75,42 @@ const getStudentName = (studentId: string) => {
   }
 
 const handleAddResult = () => {
-  if (!newStudentName || !newScore) return;
+  if (!newStudentID || !newScore) return;
 
   const newResult: Result = {
-    studentId: newStudentName, // now it's already ID
+    studentId: newStudentID, // now it's already ID
     score: parseFloat(newScore),
     olympiad_id: tournament.id
   };
 
   setResults([...results, newResult]);
-  setNewStudentName("");
+  setNewStudentID("");
   setNewScore("");
 };
 
   const handleDeleteResult = (studentId: string) => {
     setResults(results.filter(r => r.studentId !== studentId));
   };
+const handleCalculateRanks = () => {
+  if (isManualRanking) return; // ❗ skip auto if manual mode
 
-  const handleCalculateRanks = () => {
-    const sorted = [...results].sort((a, b) => b.score - a.score);
-    const ranked = sorted.map((result, index) => ({
+  const sorted = [...results].sort((a, b) => b.score - a.score);
+
+  let currentRank = 1;
+
+  const ranked = sorted.map((result, index) => {
+    if (index > 0 && result.score < sorted[index - 1].score) {
+      currentRank++;
+    }
+
+    return {
       ...result,
-      rank: index + 1,
-    }));
-    setResults(ranked);
-  };
+      rank: currentRank,
+    };
+  });
+
+  setResults(ranked);
+};
 const handleSaveResults = async () => {
   if (!id) return;
 
@@ -121,15 +133,22 @@ const handleSaveResults = async () => {
     return;
   }
 
-  const sorted = [...results].sort((a, b) => b.score - a.score);
+   const sorted = [...results].sort((a, b) => b.score - a.score);
 
-  const ranked = sorted.map((r, i) => ({
-    ...r,
-    rank: i + 1,
-  }));
+  let currentRank = 1;
+
+  const ranked = sorted.map((r, i) => {
+    if (i > 0 && r.score < sorted[i - 1].score) {
+      currentRank++;
+    }
+
+    return {
+      ...r,
+      rank: currentRank,
+    };
+  });
 
   setResults(ranked);
-
   const payload = ranked.map(r => ({
       id: crypto.randomUUID(),
        OlympiadId: id,
@@ -174,7 +193,7 @@ const chartData = results
   const getMedalIcon = (rank?: number) => {
     if (!rank) return null;
     if (rank === 1) return <Trophy className="size-6 text-yellow-500" />;
-    if (rank === 2) return <Medal className="size-6 text-gray-400" />;
+    if (rank === 2) return <Medal className="size-6 text-gray-600" />;
     if (rank === 3) return <Award className="size-6 text-amber-600" />;
     return null;
   };
@@ -182,7 +201,7 @@ const chartData = results
   const getMedalColor = (rank?: number) => {
     if (!rank) return "";
     if (rank === 1) return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
-    if (rank === 2) return "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700";
+    if (rank === 2) return "bg-silver-600 dark:bg-silver-50/20 border-silver-300 dark:border-silver-100";
     if (rank === 3) return "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800";
     return "";
   };
@@ -304,15 +323,15 @@ const chartData = results
                     Сурагчийн нэр
                   </label>
                  <select
-  value={newStudentName}
-  onChange={(e) => setNewStudentName(e.target.value)}
+  value={newStudentID}
+  onChange={(e) => setNewStudentID(e.target.value)}
   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl"
 >
   <option value="">Сурагч сонгох</option>
   {students.map((s) => (
-    <option key={s.id} value={s.id}>
-      {s.name}
-    </option>
+  <option key={s.id} value={s.id}>
+  {s.name} ({s.id})
+</option>
   ))}
 </select>
                 </div>
@@ -335,7 +354,7 @@ const chartData = results
 
                 <button
                   onClick={handleAddResult}
-                  disabled={!newStudentName || !newScore}
+                  disabled={!newStudentID || !newScore}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="size-5" />
@@ -350,7 +369,25 @@ const chartData = results
                   >
                     Байр тооцоолох
                   </button>
+<div className="flex gap-2">
+  <button
+    onClick={() => setIsManualRanking(false)}
+    className={`w-1/2 py-2 rounded-xl font-semibold ${
+      !isManualRanking ? "bg-blue-600 text-white" : "bg-gray-200"
+    }`}
+  >
+    Автомат
+  </button>
 
+  <button
+    onClick={() => setIsManualRanking(true)}
+    className={`w-1/2 py-2 rounded-xl font-semibold ${
+      isManualRanking ? "bg-purple-600 text-white" : "bg-gray-200"
+    }`}
+  >
+    Гараар
+  </button>
+</div>
                   <button
                     onClick={handleSaveResults}
                     disabled={results.length === 0}
@@ -404,14 +441,33 @@ return(
                           }`}
                         >
                           <div className="flex items-center gap-4 flex-1">
-                            {result.rank && (
-                              <div className="flex items-center gap-2 min-w-[60px]">
-                                {getMedalIcon(result.rank)}
-                                <span className="text-lg font-bold text-gray-900 dark:text-white">
-                                  #{result.rank}
-                                </span>
-                              </div>
-                            )}
+                            {isManualRanking ? (
+  <input
+    type="number"
+    value={result.rank || ""}
+    onChange={(e) => {
+      const value = parseInt(e.target.value);
+
+      setResults(prev =>
+        prev.map(r =>
+          r.studentId === result.studentId
+            ? { ...r, rank: value }
+            : r
+        )
+      );
+    }}
+    className="w-16 px-2 py-1 border rounded-lg"
+  />
+) : (
+  result.rank && (
+    <div className="flex items-center gap-2 min-w-[60px]">
+      {getMedalIcon(result.rank)}
+      <span className="text-lg font-bold">
+        #{result.rank}
+      </span>
+    </div>
+  )
+)}
                             <div className="flex-1">
                               <div className="font-semibold text-gray-900 dark:text-white">
                                 {student?.name}

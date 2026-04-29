@@ -96,7 +96,7 @@ export function Profile() {
                 {user.grade && (
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white/90 text-sm border border-white/30">
                     <GraduationCap className="size-4" />
-                    Grade {user.grade}
+                     {user.grade}-р Анги
                   </span>
                 )}
                 {user.organization && (
@@ -136,7 +136,7 @@ export function Profile() {
           className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-violet-200/50 dark:border-violet-800/50 shadow-lg"
         >
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Personal Information
+            Хувийн мэдээлэл
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -186,7 +186,7 @@ export function Profile() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={!isEditing}
-                  placeholder="Enter phone number"
+                  placeholder="Утасны дугаар оруулах"
                   className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
                 />
               </div>
@@ -204,7 +204,7 @@ export function Profile() {
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   disabled={!isEditing}
-                  placeholder="Enter address"
+                  placeholder="Хаяг оруулах"
                   className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
                 />
               </div>
@@ -241,10 +241,10 @@ export function Profile() {
                       disabled={!isEditing}
                       className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 appearance-none transition-all"
                     >
-                      <option value="">Select grade</option>
+                      <option value="">Анги сонгох</option>
                       {[9, 10, 11, 12].map((g) => (
                         <option key={g} value={g}>
-                          Grade {g}
+                           {g}-р Анги
                         </option>
                       ))}
                     </select>
@@ -279,18 +279,18 @@ export function Profile() {
           className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-violet-200/50 dark:border-violet-800/50 shadow-lg"
         >
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Account Settings
+            Settings
           </h2>
 
           <div className="space-y-4">
             <button className="w-full px-6 py-4 bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 rounded-2xl font-semibold hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-all text-left">
-              Change Password
+            Нууц үг солих
             </button>
             <button className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-left">
-              Notification Preferences
+            Мэдэгдлийн тохиргоо
             </button>
             <button className="w-full px-6 py-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-2xl font-semibold hover:bg-red-100 dark:hover:bg-red-900/50 transition-all text-left">
-              Delete Account
+              Бүртгэл устгах
             </button>
           </div>
         </motion.div>

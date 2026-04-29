@@ -184,10 +184,6 @@ export function OrganizerDashboard() {
         >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm mb-2">
-                <Sparkles className="size-4" />
-                <span>Organizer Portal</span>
-              </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-white">
                 {t("organizer.welcome")}, {user?.name}!
               </h1>
@@ -365,7 +361,7 @@ export function OrganizerDashboard() {
                     </div>
                     <div className="mt-4 pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
                       <button
-                        onClick={() => navigate(`/organizer/results/${olympiad.id}`)}
+                        onClick={(e) => {e.stopPropagation(); navigate(`/organizer/results/${olympiad.id}`)}}
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
                       >
                         <BarChart3 className="size-4" />
