@@ -68,6 +68,8 @@
   },
   "scripts": {
     "dev": "vite",
+
+    "start": "node server.js"
     "build": "vite build"
   }
 }
