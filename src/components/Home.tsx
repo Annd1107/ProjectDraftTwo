@@ -8,7 +8,7 @@ import { motion } from "motion/react";
 import { useEvents } from "../lib/event-context";
 import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
 
-const logo = "src/assets/logopurple.png";
+import logo from "figma:asset/logopurple.png";
 
 const CATS = [
   { id: "math", label: "Математик", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
