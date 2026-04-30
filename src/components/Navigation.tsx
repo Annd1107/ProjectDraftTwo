@@ -24,10 +24,8 @@ export function Navigation() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // ✅ hide dot when user is on notifications page
   const hideDot = location.pathname === "/notifications";
 
-  // ✅ fetch if user has ANY notifications
   useEffect(() => {
     if (!user) return;
 
@@ -80,20 +78,15 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
 
-            {/* LEFT SIDE ... (unchanged) */}
-
-            {/* RIGHT SIDE */}
             <div className="flex items-center gap-2">
               {user && (
                 <>
-                  {/* 🔔 NOTIFICATION BELL */}
                   <Link
                     to="/notifications"
                     className="hidden sm:flex relative p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                   >
                     <Bell className="size-5" />
 
-                    {/* 🔴 RED DOT ONLY */}
                     {hasNotifications && !hideDot && (
                       <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                     )}
@@ -111,19 +104,14 @@ export function Navigation() {
               <button onClick={toggleTheme} className="p-2 rounded-xl">
                 {theme === "light" ? <Moon className="size-5" /> : <Sun className="size-5" />}
               </button>
-
-              {/* rest unchanged */}
             </div>
           </div>
         </div>
       </nav>
-
-      {/* MOBILE MENU */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm">
           <div className="absolute right-0 top-16 bottom-0 w-full max-w-sm bg-white dark:bg-gray-900">
 
-            {/* ... other items */}
 
             {user && (
               <Link
@@ -134,7 +122,6 @@ export function Navigation() {
                 <Bell className="size-5" />
                 <span>{t("nav.notifications")}</span>
 
-                {/* 🔴 mobile dot also fixed */}
                 {hasNotifications && !hideDot && (
                   <span className="ml-auto h-2 w-2 bg-red-500 rounded-full"></span>
                 )}

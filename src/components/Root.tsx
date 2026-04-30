@@ -29,6 +29,8 @@ export function Root() {
   const isActive = (path: string) => {
     return location.pathname === path;
   };
+  const hideDot = location.pathname === "/notifications";
+  
 
   // ✅ fetch if user has ANY notifications
   useEffect(() => {
@@ -111,13 +113,12 @@ export function Root() {
             <Link to="/" className="flex items-center gap-3 group">
               <div className="relative">
                 <img src={logo} alt="Logo" className="size-12 rounded-xl shadow-lg group-hover:scale-105 transition-transform" />
-                <div className="absolute -top-1 -right-1 size-3 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full animate-pulse"></div>
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                   TemtseenPortal
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Olympiad Platform</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Олимдиадуудын нэгдсэн платформ</p>
               </div>
             </Link>
 
@@ -161,20 +162,12 @@ export function Root() {
                 {theme === "light" ? <Moon className="size-5" /> : <Sun className="size-5" />}
               </button>
 
-              {/* Language Switcher */}
-              <button
-                onClick={toggleLanguage}
-                className="px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors font-semibold"
-                title={language === "mn" ? "Switch to English" : "Монгол хэл рүү шилжих"}
-              >
-                {language === "mn" ? "EN" : "МН"}
-              </button>
 
               {/* Auth Buttons */}
               {user ? (
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-xl font-semibold hover:from-rose-600 hover:to-red-600 shadow-lg shadow-rose-500/30 transition-all ml-2"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 shadow-lg shadow-rose-500/30 transition-all ml-2"
                 >
                   <LogOut className="size-4" />
                   <span>{t("nav.logout")}</span>
@@ -250,24 +243,13 @@ export function Root() {
                   <span>{theme === "light" ? t("nav.darkMode") : t("nav.lightMode")}</span>
                 </button>
 
-                <button
-                  onClick={() => {
-                    toggleLanguage();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-950/30 rounded-xl transition-all text-left"
-                >
-                  <Globe className="size-5" />
-                  <span>{language === "mn" ? "English" : "Монгол"}</span>
-                </button>
-
                 {user ? (
                   <button
                     onClick={() => {
                       handleLogout();
                       setMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-xl font-semibold mt-2"
+                    className="flex items-center gap-3 px-4 py-2.5 bg-red-200 text-red-800 rounded-xl font-semibold mt-2"
                   >
                     <LogOut className="size-5" />
                     <span>{t("nav.logout")}</span>
@@ -313,37 +295,37 @@ export function Root() {
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Mongolia's premier platform for academic olympiads and competitions.
+                Олимпиадуудын нэгдсэн Монгол дахь цор ганц платформ.
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h3>
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Холбоос</h3>
               <div className="flex flex-col gap-2">
                 <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 text-sm transition-colors">
-                  Home
+                  Нүүр
                 </Link>
                 <Link to="/about" className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 text-sm transition-colors">
-                  About Us
+                  Бидний тухай
                 </Link>
                 {user && (
                   <Link
                     to={user.role === "organizer" ? "/organizer" : "/student"}
                     className="text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 text-sm transition-colors"
                   >
-                    Dashboard
+                    Хяналтын самбар
                   </Link>
                 )}
               </div>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Contact</h3>
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Холбогдох</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                 Ulaanbaatar, Mongolia
               </p>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                info@temtseenportal.mn
+                temtseenportal@gmail.com
               </p>
             </div>
           </div>

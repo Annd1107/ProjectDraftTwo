@@ -1,6 +1,6 @@
 import { useState, useMemo} from "react";
 import { Link } from "react-router";
-import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap } from "lucide-react";
+import { Trophy, Users, Award, Zap, Shield, Bell, ArrowRight, CheckCircle2, Sparkles, GraduationCap, Moon, Sun } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
@@ -8,29 +8,29 @@ import { motion } from "motion/react";
 import { useEvents } from "../lib/event-context";
 import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
 
+import logo from "figma:asset/logopurple.png";
 
 const CATS = [
-  { id: "math", label: "Mathematics", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
-  { id: "phys", label: "Physics",     color: "#1D9E75", bg: "#E1F5EE", text: "#085041" },
-  { id: "chem", label: "Chemistry",   color: "#D85A30", bg: "#FAECE7", text: "#4A1B0C" },
-  { id: "cs",   label: "Computing",   color: "#378ADD", bg: "#E6F1FB", text: "#0C447C" },
-  { id: "bio",  label: "Biology",     color: "#639922", bg: "#EAF3DE", text: "#27500A" },
+  { id: "math", label: "Математик", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
+  { id: "phys", label: "Физик",     color: "#1D9E75", bg: "#E1F5EE", text: "#085041" },
+  { id: "chem", label: "Химийн",   color: "#D85A30", bg: "#FAECE7", text: "#4A1B0C" },
+  { id: "cs",   label: "Компьютерийн",   color: "#378ADD", bg: "#E6F1FB", text: "#0C447C" },
+  { id: "bio",  label: "Биологи",     color: "#639922", bg: "#EAF3DE", text: "#27500A" },
 ];
 
-const WEEKDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const WEEKDAYS = ["Ням","Даваа","Мягмар","Лхагва","Пүрэв","Баасан","Бямба"];
 const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "1-р сар","2-р сар","3-р сар","4-р сар","5-р сар","6-р сар",
+  "7-р сар","8-р сар","9-р сар","10-р сар","11-р сар","12-р сар",
 ];
 
 function OlympiadCalendar() {
-
   const [selectedKey, setSelectedKey] = useState(null);
-   const { events: dbEvents, loading } = useEvents();
+  const { events: dbEvents, loading } = useEvents();
   const events = useMemo(() => transformEvents(dbEvents), [dbEvents]);
   const eventMap = useMemo(() => buildEventMap(events), [events]);
-    const now = new Date();
-      const [cursor, setCursor] = useState(new Date(now.getFullYear(), now.getMonth(),1));
+  const now = new Date();
+  const [cursor, setCursor] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
 
   const firstDay    = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay();
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
@@ -55,7 +55,7 @@ function OlympiadCalendar() {
   const selectedEvents = selectedKey ? (eventMap[selectedKey] || []) : [];
 
   return (
-    <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
+    <section className="relative py-24 px-8 bg-violet-50 dark:bg-gray-900">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -66,11 +66,11 @@ function OlympiadCalendar() {
         >
           <h2 className="text-4xl lg:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-              Upcoming Olympiads
+              Олимпиадуудын календарь
             </span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            Browse events by date and register directly
+            Ирэх саруудад болох олимпиадуудыг шалгана уу
           </p>
         </motion.div>
 
@@ -87,7 +87,7 @@ function OlympiadCalendar() {
               onClick={() => { setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1)); setSelectedKey(null); }}
               className="flex items-center gap-1 px-4 py-2 rounded-xl border border-violet-200 dark:border-violet-800 text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors text-sm font-medium"
             >
-              <ChevronLeft className="size-4" /> Prev
+              <ChevronLeft className="size-4" /> Өмнөх
             </button>
             <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
@@ -96,11 +96,10 @@ function OlympiadCalendar() {
               onClick={() => { setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)); setSelectedKey(null); }}
               className="flex items-center gap-1 px-4 py-2 rounded-xl border border-violet-200 dark:border-violet-800 text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors text-sm font-medium"
             >
-              Next <ChevronRight className="size-4" />
+              Дараах <ChevronRight className="size-4" />
             </button>
           </div>
 
-          {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
             {WEEKDAYS.map(d => (
               <div key={d} className="text-center text-xs text-gray-400 dark:text-gray-500 py-1">{d}</div>
@@ -191,7 +190,7 @@ function OlympiadCalendar() {
 
           {!selectedKey && (
             <p className="mt-5 text-center text-sm text-gray-400 dark:text-gray-500">
-              Tap a highlighted date to see events
+              Сонирхсон өдрийг сонгоод дэлгэрэнгүй мэдээллийг хараарай
             </p>
           )}
         </motion.div>
@@ -200,14 +199,18 @@ function OlympiadCalendar() {
   );
 }
 
-
-
 // ---------------------------------------------------------------------------
 // Home page
 // ---------------------------------------------------------------------------
 export function Home() {
   const { user } = useAuth();
   const { t }    = useLanguage();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDark = () => {
+    setDarkMode(prev => !prev);
+    document.documentElement.classList.toggle("dark");
+  };
 
   return (
     <div className="min-h-screen w-screen">
@@ -215,20 +218,27 @@ export function Home() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
 
-        <div className="relative flex items-center p-8 lg:p-16 bg-gradient-to-br from-white via-violet-50/30 to-purple-50/50 dark:from-gray-900 dark:via-purple-950/30 dark:to-violet-950/50">
-          <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
+        {/* Dark mode toggle button — floats top-right over hero */}
+        <button
+          onClick={toggleDark}
+          aria-label="Toggle dark mode"
+          className="absolute top-6 right-6 z-20 p-2.5 rounded-full
+                     bg-violet-100 dark:bg-gray-700
+                     text-violet-600 dark:text-yellow-400
+                     hover:bg-violet-200 dark:hover:bg-gray-600
+                     shadow-md transition-all duration-300"
+        >
+          {darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg shadow-violet-500/20 border border-violet-200/50 dark:border-violet-800/50"
-            >
-              <Sparkles className="size-4 text-violet-600 dark:text-violet-400" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Mongolia's Premier Olympiad Platform
-              </span>
-            </motion.div>
+        {/* Left — Logo */}
+        <div className="p-8 relative flex items-center justify-center bg-white dark:bg-gray-900 lg:p-16 transition-colors duration-300">
+          <img src={logo} alt="Logo" className="size-150" />
+        </div>
+
+        {/* Right — Content */}
+        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-300">
+          <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -237,7 +247,7 @@ export function Home() {
               className="space-y-4"
             >
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                <span className="bg-purple-600 bg-clip-text text-transparent">
                   {t("home.title")}
                 </span>
               </h1>
@@ -299,74 +309,23 @@ export function Home() {
             >
               <div>
                 <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">1,200+</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Students</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Сурагчид</div>
               </div>
               <div>
                 <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">45+</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Tournaments</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Олимпиадууд</div>
               </div>
               <div>
                 <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">25+</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Organizers</div>
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-10" />
-        </div>
-
-        {/* Right side */}
-        <div className="relative hidden lg:flex items-center justify-center p-16 bg-gradient-to-bl from-violet-100 via-purple-100 to-fuchsia-100 dark:from-purple-950 dark:via-violet-950 dark:to-fuchsia-950">
-          <div className="relative">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/30 bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center"
-            >
-              <GraduationCap className="size-48 text-white opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-violet-600/80 to-transparent" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="absolute -top-6 -left-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl p-4 rounded-2xl shadow-xl shadow-violet-500/20 border border-violet-200/50 dark:border-violet-800/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl">
-                  <Trophy className="size-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">45+</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Active Events</div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="absolute -bottom-6 -right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl p-4 rounded-2xl shadow-xl shadow-violet-500/20 border border-violet-200/50 dark:border-violet-800/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-xl">
-                  <Award className="size-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">₮10K</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Registration Fee</div>
-                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Зохион Байгуулагчид</div>
               </div>
             </motion.div>
           </div>
         </div>
-
-        
       </section>
+
+      {/* ── Olympiad Calendar ─────────────────────────────────────────────── */}
+      <OlympiadCalendar />
 
       {/* ── Choose Your Path ─────────────────────────────────────────────── */}
       <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
@@ -379,13 +338,10 @@ export function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                Choose Your Path
+              <span className="bg-purple-600 bg-clip-text text-transparent">
+                Өөрийн замаа сонго
               </span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Join as a student or create events as an organizer
-            </p>
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
@@ -397,11 +353,11 @@ export function Home() {
               transition={{ duration: 0.6 }}
               className="group relative"
             >
-              <div className="relative bg-gradient-to-br from-violet-500 to-purple-600 p-[2px] rounded-3xl overflow-hidden">
+              <div className="relative bg-purple-600 p-[2px] rounded-3xl overflow-hidden">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 lg:p-10 h-full">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full blur-3xl opacity-20" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600 rounded-full blur-3xl opacity-20" />
                   <div className="relative z-10">
-                    <div className="inline-flex p-4 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-lg shadow-violet-500/30 mb-6">
+                    <div className="inline-flex p-4 bg-purple-600 rounded-2xl shadow-lg shadow-violet-500/30 mb-6">
                       <Users className="size-10 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.studentTitle")}</h3>
@@ -417,7 +373,7 @@ export function Home() {
                     {!user && (
                       <Link
                         to="/signup"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                       >
                         Get Started
                         <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
@@ -436,11 +392,11 @@ export function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="group relative lg:mt-12"
             >
-              <div className="relative bg-gradient-to-br from-fuchsia-500 to-purple-600 p-[2px] rounded-3xl overflow-hidden">
+              <div className="relative bg-purple-600 p-[2px] rounded-3xl overflow-hidden">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 lg:p-10 h-full">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-400 to-purple-600 rounded-full blur-3xl opacity-20" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-400 rounded-full opacity-20" />
                   <div className="relative z-10">
-                    <div className="inline-flex p-4 bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-2xl shadow-lg shadow-fuchsia-500/30 mb-6">
+                    <div className="inline-flex p-4 bg-purple-600 rounded-2xl mb-6">
                       <Trophy className="size-10 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.organizerTitle")}</h3>
@@ -448,7 +404,7 @@ export function Home() {
                     <ul className="space-y-3 mb-8">
                       {["Create unlimited events", "Manage registrations", "Analytics dashboard"].map(item => (
                         <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                          <CheckCircle2 className="size-5 text-fuchsia-600 dark:text-fuchsia-400 flex-shrink-0" />
+                          <CheckCircle2 className="size-5 text-purple-600 dark:text-fuchsia-400 flex-shrink-0" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -456,7 +412,7 @@ export function Home() {
                     {!user && (
                       <Link
                         to="/signup"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-fuchsia-500/30 hover:shadow-xl hover:shadow-fuchsia-500/40 transition-all group"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                       >
                         Get Started
                         <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
@@ -471,7 +427,7 @@ export function Home() {
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
-      <section className="relative py-24 px-8 bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
+      <section className="relative py-24 px-8 bg-violet-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -489,9 +445,9 @@ export function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Zap,    title: t("home.feature1"), desc: t("home.feature1Desc"), color: "from-violet-500 to-purple-600" },
-              { icon: Shield, title: t("home.feature2"), desc: t("home.feature2Desc"), color: "from-fuchsia-500 to-purple-600" },
-              { icon: Bell,   title: t("home.feature3"), desc: t("home.feature3Desc"), color: "from-violet-500 to-fuchsia-600" },
+              { icon: Zap,    title: t("home.feature1"), desc: t("home.feature1Desc"), color: "purple-600" },
+              { icon: Shield, title: t("home.feature2"), desc: t("home.feature2Desc"), color: "purple-600" },
+              { icon: Bell,   title: t("home.feature3"), desc: t("home.feature3Desc"), color: "purple-600" },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -499,9 +455,9 @@ export function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-3xl border border-violet-200/50 dark:border-violet-800/50 hover:shadow-xl hover:shadow-violet-500/20 transition-all duration-300"
+                className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-8 rounded-3xl border border-violet-200/50 dark:border-violet-800/50 hover:shadow-xl transition-all duration-300"
               >
-                <div className={`inline-flex p-4 bg-gradient-to-br ${feature.color} rounded-2xl shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`inline-flex p-4 bg-${feature.color} rounded-2xl shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="size-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{feature.title}</h3>
@@ -512,46 +468,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── Olympiad Calendar ─────────────────────────────────────────────── */}
-      <OlympiadCalendar />
-
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
-      <section className="relative py-24 px-8 bg-white dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-12 lg:p-16 rounded-[3rem] overflow-hidden shadow-2xl shadow-violet-500/30"
-          >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl" />
-            <div className="relative z-10">
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">Ready to Get Started?</h2>
-              <p className="text-xl text-violet-100 mb-8">
-                Join thousands of students and organizers on Mongolia's premier olympiad platform
-              </p>
-              {!user && (
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    to="/signup"
-                    className="px-8 py-4 bg-white text-violet-600 rounded-2xl font-semibold hover:bg-violet-50 transition-all shadow-xl"
-                  >
-                    Create Account
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 rounded-2xl font-semibold hover:bg-white/20 transition-all"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }

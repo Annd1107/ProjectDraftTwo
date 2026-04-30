@@ -4,6 +4,7 @@ import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, User
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
+import logo from "figma:asset/logopurple.png";
 
 export function Signup() {
   const [role, setRole] = useState<"student" | "organizer">("student");
@@ -77,11 +78,8 @@ export function Signup() {
 
           <div className="space-y-4">
             <h2 className="text-4xl font-bold text-white">
-              Join Our Community
+              Бидэнтэй нэгдэж, амжилтад хүрцгээе!
             </h2>
-            <p className="text-xl text-violet-100">
-              Start your journey to academic excellence today
-            </p>
           </div>
 
           <div className="space-y-3 text-left bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
@@ -89,19 +87,19 @@ export function Signup() {
               <div className="p-2 bg-white/20 rounded-lg">
                 <Trophy className="size-5" />
               </div>
-              <span>Access 45+ tournaments</span>
+              <span>45+ олимпиад</span>
             </div>
             <div className="flex items-center gap-3 text-white">
               <div className="p-2 bg-white/20 rounded-lg">
                 <Users className="size-5" />
               </div>
-              <span>Join 1,200+ students</span>
+              <span>1,200+ сурагчид</span>
             </div>
             <div className="flex items-center gap-3 text-white">
               <div className="p-2 bg-white/20 rounded-lg">
                 <GraduationCap className="size-5" />
               </div>
-              <span>Track your achievements</span>
+              <span>Амжилтаа тэмдэглэ</span>
             </div>
           </div>
         </motion.div>
@@ -118,7 +116,7 @@ export function Signup() {
           {/* Logo and Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-6">
-              <img src={"src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png"} alt="Logo" className="size-12 rounded-xl shadow-lg" />
+              <img src={logo} alt="Logo" className="size-12 rounded-xl shadow-lg" />
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                 TemtseenPortal
               </span>
@@ -161,7 +159,7 @@ export function Signup() {
                     }`} />
                   <span className={`block text-sm font-semibold ${role === "student" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
                     }`}>
-                    Student
+                    Сурагч
                   </span>
                 </button>
 
@@ -177,7 +175,7 @@ export function Signup() {
                     }`} />
                   <span className={`block text-sm font-semibold ${role === "organizer" ? "text-violet-600 dark:text-violet-400" : "text-gray-600 dark:text-gray-400"
                     }`}>
-                    Organizer
+                    Зохион байгуулагч
                   </span>
                 </button>
               </div>
@@ -198,7 +196,7 @@ export function Signup() {
                     onChange={(e) => setName(e.target.value)}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="Your full name"
+                    placeholder="Таны овог нэр"
                   />
                 </div>
               </div>
@@ -216,7 +214,7 @@ export function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="your@email.com"
+                    placeholder="Email оруулна уу"
                   />
                 </div>
               </div>
@@ -261,13 +259,13 @@ export function Signup() {
                         onChange={(e) => setSchool(e.target.value)}
                         required
                         className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                        placeholder="Your school name"
+                        placeholder="Таны сургуулийн нэр"
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Birthdate
+                      Төрсөн огноо
                     </label>
                     <input
                       type="date"
@@ -288,10 +286,10 @@ export function Signup() {
                         required
                         className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 appearance-none transition-all"
                       >
-                        <option value="">Select grade</option>
+                        <option value="">Анги сонгох</option>
                         {[9, 10, 11, 12].map((g) => (
                           <option key={g} value={g}>
-                            Grade {g}
+                             {g}-р анги
                           </option>
                         ))}
                       </select>

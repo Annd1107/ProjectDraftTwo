@@ -1,13 +1,16 @@
 import express from "express";
 import cors from "cors";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
 
 app.use(cors()); // ✅ THIS FIXES YOUR ERROR
 app.use(express.json());
 
 app.options("*", cors()); // ✅ preflight fix
+const PORT = process.env.PORT || 5000;
 
 app.post("/notify-email", async (req, res) => {
   try {
@@ -35,7 +38,6 @@ app.post("/notify-email", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });

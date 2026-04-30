@@ -4,6 +4,7 @@ import { Mail, Lock, ArrowRight, Trophy, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
+import logo from "figma:asset/logopurple.png";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,6 @@ export function Login() {
   const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const logo = "src/assets/logopurple.png";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +81,7 @@ export function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="your@email.com"
+                    placeholder="Email оруулна уу"
                   />
                 </div>
               </div>
@@ -126,7 +126,7 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
-                    <span className="text-gray-700 dark:text-gray-300">{"Student"}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{"Сурагч"}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -137,7 +137,7 @@ export function Login() {
                       onChange={(e) => setRole(e.target.value as "student" | "organizer")}
                       className="w-4 h-4"
                     />
-                    <span className="text-gray-700 dark:text-gray-300">{ "Organizer"}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{ "Зохион байгуулагч"}</span>
                   </label>
                 </div>
               </div>
@@ -192,25 +192,22 @@ export function Login() {
 
           <div className="space-y-4">
             <h2 className="text-4xl font-bold text-white">
-              Welcome Back!
+              Тавтай морил
             </h2>
-            <p className="text-xl text-violet-100">
-              Continue your journey to academic excellence
-            </p>
           </div>
 
           <div className="grid grid-cols-3 gap-4 pt-8">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
               <div className="text-3xl font-bold text-white mb-1">1.2K+</div>
-              <div className="text-violet-100 text-sm">Students</div>
+              <div className="text-violet-100 text-sm">Сурагчид</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
               <div className="text-3xl font-bold text-white mb-1">45+</div>
-              <div className="text-violet-100 text-sm">Events</div>
+              <div className="text-violet-100 text-sm">Олимпиадууд</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
               <div className="text-3xl font-bold text-white mb-1">25+</div>
-              <div className="text-violet-100 text-sm">Organizers</div>
+              <div className="text-violet-100 text-sm">Зохион байгуулагчид</div>
             </div>
           </div>
         </motion.div>

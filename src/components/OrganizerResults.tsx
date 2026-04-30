@@ -376,7 +376,7 @@ const chartData = results
       !isManualRanking ? "bg-blue-600 text-white" : "bg-gray-200"
     }`}
   >
-    Automatic
+    Автомат
   </button>
 
   <button
@@ -385,7 +385,7 @@ const chartData = results
       isManualRanking ? "bg-purple-600 text-white" : "bg-gray-200"
     }`}
   >
-    Manual
+    Гараар
   </button>
 </div>
                   <button

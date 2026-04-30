@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import { getOlympiads, updateOlympiad } from "../lib/tournament-api";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
-import { sendOlympiadUpdateNotif } from "../lib/notification-utils";
-import { register } from "module";
 
 export function TournamentEdit() {
   const { id } = useParams();
@@ -29,8 +27,6 @@ export function TournamentEdit() {
       const found = data.find((o: any) => o.id === id);
 
       if (!found) return navigate("/");
-
-      // owner check
       if (user?.id !== found.organizer_id) {
         return navigate("/");
       }
@@ -90,10 +86,7 @@ export function TournamentEdit() {
       max_participants: maxParticipants,
       preparation_material: prep,
     });
-    console.log("Sending notification...", id, title);
 
-    
-    await sendOlympiadUpdateNotif(id!, title, "Olympiad Updated");
     navigate(`/tournament/${id}`);
   };
 
@@ -101,7 +94,7 @@ export function TournamentEdit() {
 
   return (
     <div className="max-w-2xl mx-auto py-10">
-      <h1 className="text-2xl font-bold mb-6">Edit Tournament</h1>
+      <h1 className="text-2xl font-bold mb-6">Засах</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2" />

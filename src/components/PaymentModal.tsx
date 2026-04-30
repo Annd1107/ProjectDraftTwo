@@ -118,30 +118,12 @@ export function PaymentModal({
               <label className="block text-gray-700 dark:text-gray-300 mb-3 font-semibold">
                 Төлбөрийн хэрэгсэл сонгох
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setPaymentMethod("qpay")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    paymentMethod === "qpay"
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-900/30 shadow-md"
-                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-700"
-                  }`}
+              <div>
+                <div
+                  className="p-4 rounded-xl border-2 transition-all border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700"
                 >
-                  <Building className="size-6 mx-auto mb-2 text-purple-600 dark:text-purple-400" />
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">QPay</div>
-                </button>
-
-                <button
-                  onClick={() => setPaymentMethod("card")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    paymentMethod === "card"
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-900/30 shadow-md"
-                      : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-purple-300 dark:hover:border-purple-700"
-                  }`}
-                >
-                  <CreditCard className="size-6 mx-auto mb-2 text-purple-600 dark:text-purple-400" />
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">Карт</div>
-                </button>
+                  <img src="src/assets/qpaylogo.png" alt="QPay Logo" className="h-8 mx-auto mb-2" />
+                </div>
               </div>
             </div>
 
@@ -158,15 +140,6 @@ export function PaymentModal({
                     className="w-48 h-48 border-4 border-white dark:border-gray-600 rounded-xl shadow-lg"
                   />
                 </div>
-              </div>
-            )}
-
-            {/* Card */}
-            {paymentMethod === "card" && (
-              <div className="mb-6 p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Картын мэдээллээ оруулснаар аюулгүй төлбөр төлөх боломжтой.
-                </p>
               </div>
             )}
 

@@ -184,10 +184,6 @@ export function OrganizerDashboard() {
         >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm mb-2">
-                <Sparkles className="size-4" />
-                <span>Organizer Portal</span>
-              </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-white">
                 {t("organizer.welcome")}, {user?.name}!
               </h1>
@@ -201,7 +197,7 @@ export function OrganizerDashboard() {
               className="group inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 rounded-xl font-semibold hover:bg-purple-50 transition-all"
             >
               <Plus className="size-5" />
-              <span>Create Event</span>
+              <span>Олимпиад үүсгэх</span>
             </button>
           </div>
 
@@ -210,7 +206,7 @@ export function OrganizerDashboard() {
             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
               <div className="flex items-center gap-3 mb-2">
                 <Trophy className="size-5 text-white" />
-                <span className="text-white/80 text-sm">Total Events</span>
+                <span className="text-white/80 text-sm">Нийт олимпиадууд</span>
               </div>
               <div className="text-3xl font-bold text-white">{olympiads.length}</div>
             </div>
@@ -218,7 +214,7 @@ export function OrganizerDashboard() {
             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
               <div className="flex items-center gap-3 mb-2">
                 <Calendar className="size-5 text-white" />
-                <span className="text-white/80 text-sm">Upcoming</span>
+                <span className="text-white/80 text-sm">Удахгүй болох</span>
               </div>
               <div className="text-3xl font-bold text-white">{upcomingEvents}</div>
             </div>
@@ -226,7 +222,7 @@ export function OrganizerDashboard() {
             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="size-5 text-white" />
-                <span className="text-white/80 text-sm">Participants</span>
+                <span className="text-white/80 text-sm">Оролцогчид</span>
               </div>
               <div className="text-3xl font-bold text-white">{totalParticipants}</div>
             </div>
@@ -234,9 +230,9 @@ export function OrganizerDashboard() {
             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
               <div className="flex items-center gap-3 mb-2">
                 <DollarSign className="size-5 text-white" />
-                <span className="text-white/80 text-sm">Revenue</span>
+                <span className="text-white/80 text-sm">Орлого</span>
               </div>
-              <div className="text-3xl font-bold text-white">₮{(totalRevenue / 1000).toFixed(0)}K</div>
+              <div className="text-3xl font-bold text-white">{(totalRevenue / 1000).toFixed(0)}K₮</div>
             </div>
           </div>
         </motion.div>
@@ -255,17 +251,14 @@ export function OrganizerDashboard() {
             >
               <Trophy className="size-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                No events yet
+                Олимпиад байхгүй байна
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">
-                Create your first tournament to get started
-              </p>
               <button
                 onClick={() => setShowForm(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
               >
                 <Plus className="size-5" />
-                <span>Create First Event</span>
+                <span>Олимпиад үүсгэх</span>
               </button>
             </motion.div>
           ) : (
@@ -330,7 +323,7 @@ export function OrganizerDashboard() {
                           }}
                           className="text-violet-600 hover:underline"
                         >
-                          Download Preparation Material
+                          Бэлдэх материал татах
                         </button>
                       )}
                     </div>
@@ -354,7 +347,7 @@ export function OrganizerDashboard() {
                     {/* Revenue */}
                     <div className="flex items-center justify-between pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
                       <div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Revenue</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Орлого</div>
                         <div className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                           ₮{((olympiad.registered_count * olympiad.registration_fee) / 1000).toFixed(0)}K
                         </div>
@@ -403,7 +396,7 @@ export function OrganizerDashboard() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  Create New Event
+                  Олимпиад үүсгэх
                 </h2>
                 <button
                   onClick={() => setShowForm(false)}
@@ -416,7 +409,7 @@ export function OrganizerDashboard() {
               <form onSubmit={handleCreate} className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Event Title *
+                    Олимпиадын нэр *
                   </label>
                   <input
                     type="text"
@@ -430,7 +423,7 @@ export function OrganizerDashboard() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Description *
+                    Нэмэлт мэдээлэл *
                   </label>
                   <textarea
                     value={description}
@@ -445,7 +438,7 @@ export function OrganizerDashboard() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Category *
+                      Хичээл *
                     </label>
                     <select
                       value={category}
@@ -464,7 +457,7 @@ export function OrganizerDashboard() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Date *
+                      Огноо *
                     </label>
                     <input
                       type="date"
@@ -478,7 +471,7 @@ export function OrganizerDashboard() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Location *
+                    Байршил *
                   </label>
                   <input
                     type="text"
@@ -493,7 +486,7 @@ export function OrganizerDashboard() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Max Participants
+                      Байж болох хамгийн их оролцогчид
                     </label>
                     <input
                       type="number"
@@ -506,7 +499,7 @@ export function OrganizerDashboard() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Registration Fee (₮)
+                      Бүртгэлийн төлбөр (₮)
                     </label>
                     <input
                       type="number"
@@ -521,7 +514,7 @@ export function OrganizerDashboard() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Preparation Material (PDF)
+                    Бэлдэх материал (PDF)
                   </label>
                   <div className="relative">
                     <input
@@ -549,13 +542,13 @@ export function OrganizerDashboard() {
                     onClick={() => setShowForm(false)}
                     className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
                   >
-                    Cancel
+                    Болих
                   </button>
                   <button
                     type="submit"
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
                   >
-                    Create Event
+                    Олимпиад үүсгэх
                   </button>
                 </div>
               </form>
