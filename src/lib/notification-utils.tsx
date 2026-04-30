@@ -22,6 +22,7 @@ export async function sendOlympiadUpdateNotif(
   olympiadName: string,
   title: string
 ) {
+  // 1. get registrations
   const { data: registrations, error } = await supabase
     .from("Registrations")
     .select("student_id")
@@ -31,19 +32,20 @@ export async function sendOlympiadUpdateNotif(
     console.error("Failed to fetch registrations:", error?.message);
     return;
   }
+  
 
-  const studentIds = registrations.map(r => r.student_id);
-
-  const { data: students, error: studentsError } = await supabase
+  // 2. get student emails
+  const { data: students, error: studentError } = await supabase
     .from("Students")
     .select("id, email")
-    .in("id", studentIds);
+    .in("id", registrations.map(r => r.student_id));
 
-  if (studentsError || !students) {
-    console.error("Failed to fetch students:", studentsError?.message);
+  if (studentError || !students) {
+    console.error("Failed to fetch students:", studentError?.message);
     return;
   }
 
+  // 3. loop students (correct mapping)
   for (const student of students) {
     if (!student.email) continue;
 
@@ -67,19 +69,25 @@ export async function sendOlympiadUpdateNotif(
 }
 /** ✅ send email via API */
 export async function sendEmail(email: string, subject: string, message: string) {
-  const { data, error } = await supabase.functions.invoke("send-email", {
-    body: {
-      email,
-      subject,
-      message,
-    },
-  });
+  try {
+    const res = await fetch("https://projectdrafttwo.onrender.com/notify-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, subject, message }),
+    });
 
-  if (error) {
-    console.error("Email error:", error.message);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Email error:", data);
+    }
+
+    return data;
+  } catch (err: any) {
+    console.error("Email error:", err.message);
   }
-
-  return data;
 }
 
 /** ✅ create notification */
