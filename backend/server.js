@@ -3,6 +3,8 @@ import cors from "cors";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
+
+
 dotenv.config();
 const app = express();
 
@@ -17,13 +19,15 @@ app.post("/notify-email", async (req, res) => {
     const { email, subject, message } = req.body;
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // app password
-      },
-    });
-
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // MUST be true
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+await transporter.verify();
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
