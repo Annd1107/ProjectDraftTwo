@@ -3,47 +3,45 @@ import cors from "cors";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
-
-
 dotenv.config();
+
 const app = express();
-
-app.use(cors()); // ✅ THIS FIXES YOUR ERROR
+app.use(cors());
 app.use(express.json());
+app.options("*", cors());
 
-app.options("*", cors()); // ✅ preflight fix
-const PORT = process.env.PORT || 5000;
+// ✅ One reusable transporter (created once)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Gmail App Password
+  },
+});
 
-app.post("/notify-email", async (req, res) => {
+// ✅ One generic route for all emails
+app.post("/send-email", async (req, res) => {
   const { email, subject, message } = req.body;
 
+  if (!email || !subject || !message) {
+    return res.status(400).json({ error: "email, subject, and message are required" });
+  }
+
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Temtseen <onboarding@resend.dev>",
-        to: [email],
-        subject,
-        text: message,
-      }),
+    await transporter.sendMail({
+      from: `"Temtseen Portal" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject,
+      text: message,
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json(data);
-    }
 
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("Mail error:", err);
     res.status(500).json({ error: err.message });
   }
 });
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+
+app.listen(process.env.PORT || 5000, () => {
+  console.log("Server running on port", process.env.PORT || 5000);
 });
