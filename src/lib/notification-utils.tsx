@@ -1,96 +1,97 @@
 import { supabase } from "../utils/supabase";
 
-export async function sendPaymentNotification(userId: string, olympiadName: string, email: string) {
-  const notif = {
+const API = "https://projectdrafttwo.onrender.com";
+
+// ─── Core email sender (used by everything below) ───────────────────────────
+async function sendEmail(email: string, subject: string, message: string) {
+  const res = await fetch(`${API}/send-email`, {       // ✅ fixed: was /payment-email
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, subject, message }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    console.error("Email failed:", err);
+  }
+}
+
+// ─── Core notification creator ───────────────────────────────────────────────
+async function createNotification(notif: {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+}) {
+  const { error } = await supabase.from("notifications").insert(notif);
+  if (error) console.error("Notification insert failed:", error.message);
+}
+
+// ─── Payment success ─────────────────────────────────────────────────────────
+export async function sendPaymentNotification(
+  userId: string,
+  olympiadName: string,
+  email: string
+) {
+  const message = `Your payment for "${olympiadName}" has been received. You are now officially registered!`;
+
+  await createNotification({
     id: Date.now().toString(),
     user_id: userId,
     type: "success",
     title: "Payment Successful",
-    message: `Your payment for "${olympiadName}" has been received. You are now officially registered!`,
-    read: false
-  }
-  const { error } = await createNotification(notif);
-  await sendEmail(
-    email,
-    "Payment Successful",
-    `Your payment for "${olympiadName}" has been received. You are now officially registered!`
-  );
-  if (error) console.error("Failed to send notification:", error.message);
+    message,
+    read: false,
+  });
+
+  await sendEmail(email, "Payment Successful", message);
 }
+
+// ─── Olympiad updated (notify all registered students) ───────────────────────
 export async function sendOlympiadUpdateNotif(
   olympiad_id: string,
   olympiadName: string,
-  title: string
 ) {
-  // 1. get registrations
-  const { data: registrations, error } = await supabase
+  // 1. Get registrations
+  const { data: registrations, error: regError } = await supabase
     .from("Registrations")
     .select("student_id")
     .eq("olympiad_id", olympiad_id);
 
-  if (error || !registrations) {
-    console.error("Failed to fetch registrations:", error?.message);
+  if (regError || !registrations) {
+    console.error("Failed to fetch registrations:", regError?.message);
     return;
   }
-  
 
-  // 2. get student emails
+  // 2. Get student emails
+  const studentIds = registrations.map((r) => r.student_id);
   const { data: students, error: studentError } = await supabase
     .from("Students")
     .select("id, email")
-    .in("id", registrations.map(r => r.student_id));
+    .in("id", studentIds);
 
   if (studentError || !students) {
     console.error("Failed to fetch students:", studentError?.message);
     return;
   }
 
-  // 3. loop students (correct mapping)
+  // 3. Notify each student
+  const message = `"${olympiadName}" has been updated. Check the latest details.`;
+
   for (const student of students) {
     if (!student.email) continue;
 
-    await sendEmail(
-      student.email,
-      "Olympiad Updated",
-      `"${olympiadName}" has been updated. Check the platform.`
-    );
+    await sendEmail(student.email, "Olympiad Updated", message);
 
     await createNotification({
-      id: Date.now().toString(),
+      id: Date.now().toString(),        // ⚠️ see note below
       user_id: student.id,
       type: "info",
       title: "Olympiad Updated",
-      message: `"${olympiadName}" has been updated. Check the latest details.`,
+      message,
       read: false,
     });
   }
-
-  console.log("sendOlympiadUpdateNotif called", olympiad_id);
-}
-/** ✅ send email via API */
-export async function sendEmail(email: string, subject: string, message: string) {
-  try {
-    const res = await fetch("https://projectdrafttwo.onrender.com/notify-email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, subject, message }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Email error:", data);
-    }
-
-    return data;
-  } catch (err: any) {
-    console.error("Email error:", err.message);
-  }
-}
-
-/** ✅ create notification */
-export async function createNotification(noti: any) {
-  return await supabase.from("notifications").insert(noti);
 }
