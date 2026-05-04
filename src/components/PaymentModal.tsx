@@ -59,11 +59,8 @@ export function PaymentModal({
       return;
     }
 
-    // update organizer revenue
-    await updateRevenue(organizerId, fee);
-
     // ✅ SEND NOTIFICATION (FIXED)
-    await sendPaymentNotification(user.id, tournamentTitle,  user.email || "");
+    await sendPaymentNotification(user.name, user.id, tournamentTitle,  user.email, );
 
     setIsProcessing(false);
     setIsSuccess(true);
