@@ -1,25 +1,16 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { Resend } from "resend";
 
 dotenv.config();
 
 const app = express();
+const resend = new Resend(process.env.RESEND_API_KEY); // no VITE_ prefix, server-side
+
 app.use(cors());
 app.use(express.json());
-app.options("*", cors());
 
-// ✅ One reusable transporter (created once)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
-  },
-});
-
-// ✅ One generic route for all emails
 app.post("/send-email", async (req, res) => {
   const { email, subject, message } = req.body;
 
@@ -28,15 +19,15 @@ app.post("/send-email", async (req, res) => {
   }
 
   try {
-    await transporter.sendMail({
-      from: `"Temtseen Portal" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Temtseen Portal <onboarding@resend.dev>",
       to: email,
       subject,
       text: message,
     });
 
     res.json({ success: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Mail error:", err);
     res.status(500).json({ error: err.message });
   }
