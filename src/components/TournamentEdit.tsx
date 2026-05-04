@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getOlympiads, updateOlympiad } from "../lib/tournament-api";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
+import {sendOlympiadUpdateNotif} from "../lib/notification-utils";
 
 export function TournamentEdit() {
   const { id } = useParams();
@@ -74,8 +75,7 @@ export function TournamentEdit() {
         fileUrl: data.publicUrl,
       };
     }
-
-
+    sendOlympiadUpdateNotif(id!, title);
     await updateOlympiad(id!, {
       title,
       description,
