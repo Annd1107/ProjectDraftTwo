@@ -5,8 +5,10 @@ import { useAuth } from "../lib/auth-context";
 import { updateRevenue } from "../services/organizerService"; 
 import { useOlympiads } from "../lib/tournament-context";
 import { sendPaymentNotification } from "../lib/notification-utils";
-import qpay from "figma:assets/qpaylogo.png";
-import qpayQR from "figma:assets/qpay-qr.png";
+
+
+
+
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -78,7 +80,8 @@ export function PaymentModal({
     setIsProcessing(false);
   }
 };
-
+  const qpay = "figma:assets/qpaylogo.png";
+  const qpayQR = "figma:assets/qpay-qr.png";
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
