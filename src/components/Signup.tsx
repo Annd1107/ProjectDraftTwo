@@ -11,6 +11,7 @@ export function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
   const [grade, setGrade] = useState("");
@@ -243,6 +244,7 @@ export function Signup() {
                   </button>
                 </div>
               </div>
+              
 
               {/* Role-specific fields */}
               {role === "student" ? (

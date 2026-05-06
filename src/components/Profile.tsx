@@ -4,9 +4,12 @@ import { User, Mail, School, GraduationCap, Building, Phone, MapPin, Save, Arrow
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
+import { updateStudent } from "../services/studentService";
+import { updateOrganizer } from "../services/organizerService";
+import { sendPassEmail } from "../utils/notification-utils";
 
 export function Profile() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -19,18 +22,45 @@ export function Profile() {
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
-    phone: user.phone || "",
     school: user.school || "",
     grade: user.grade || "",
-    organization: user.organization || "",
-    address: user.address || "",
+    organization: user.organization || ""
   });
+  const changePass = async () => {
+     await sendPassEmail( user.email, user.name, "newRandomPassword123");
+  }
+  
+  const handleSave = async () => {
+  if (!user) return;
 
-  const handleSave = () => {
+  try {
+    let updatedUser;
+
+    if (user.role === "student") {
+      updatedUser = await updateStudent(user.id, {
+        name: formData.name,
+        email: formData.email,
+        school: formData.school,
+        grade: Number(formData.grade)
+      });
+    } else {
+      updatedUser = await updateOrganizer(user.id, {
+        name: formData.name,
+        email: formData.email,
+        organization: formData.organization
+      });
+    }
+
+    const newUser = { ...user, ...updatedUser };
+
+    setUser(newUser); 
+    localStorage.setItem("user", JSON.stringify(newUser));
+
     setIsEditing(false);
-    alert(t("profile.saveSuccess"));
-  };
-
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <div className="min-h-screen p-4 lg:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -174,41 +204,7 @@ export function Profile() {
               </div>
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                {t("profile.phone")}
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  disabled={!isEditing}
-                  placeholder="Утасны дугаар оруулах"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                {t("profile.address")}
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  disabled={!isEditing}
-                  placeholder="Хаяг оруулах"
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 transition-all"
-                />
-              </div>
-            </div>
+           
 
             {/* Role-specific fields */}
             {user.role === "student" ? (
@@ -283,7 +279,7 @@ export function Profile() {
           </h2>
 
           <div className="space-y-4">
-            <button className="w-full px-6 py-4 bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 rounded-2xl font-semibold hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-all text-left">
+            <button onClick={()=> changePass} className="w-full px-6 py-4 bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 rounded-2xl font-semibold hover:bg-violet-100 dark:hover:bg-violet-950/50 transition-all text-left">
             Нууц үг солих
             </button>
             <button className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-left">

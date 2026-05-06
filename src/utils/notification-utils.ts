@@ -1,4 +1,4 @@
-import { supabase } from "../utils/supabase";
+import { supabase } from "./supabase";
 
 import emailjs from "@emailjs/browser";
 
@@ -51,6 +51,11 @@ export async function sendPaymentNotification(name_ : string,
   });
 
   await sendEmail(email, "Payment Successful", message,  name_);
+}
+export async function sendPassEmail(email: string, name:string, newPass: string) {
+  const message = `Your password has been reset. Your new password is: ${newPass}`;
+  
+  await sendEmail(email, "Password Reset", message, name);
 }
 
 // ─── Olympiad updated (notify all registered students) ───────────────────────

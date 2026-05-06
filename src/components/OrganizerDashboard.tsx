@@ -286,7 +286,10 @@ export function OrganizerDashboard() {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleDelete(olympiad.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(olympiad.id);
+                          }}
                           className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400 transition-colors"
                         >
                           <Trash2 className="size-4" />
