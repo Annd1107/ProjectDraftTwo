@@ -6,7 +6,7 @@ import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
 import { updateStudent } from "../services/studentService";
 import { updateOrganizer } from "../services/organizerService";
-import { sendPassEmail } from "../utils/notification-utils";
+import { sendPassEmail } from "../lib/notification-utils";
 
 export function Profile() {
   const { user, setUser } = useAuth();

@@ -4,8 +4,9 @@ import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
 import { updateRevenue } from "../services/organizerService"; 
 import { useOlympiads } from "../lib/tournament-context";
-import { sendPaymentNotification } from "../utils/notification-utils";
-
+import { sendPaymentNotification } from "../lib/notification-utils";
+ import qpay from "../assets/qpaylogo.png";
+  import qpayQR from "../assets/qpay-qr.png";
 
 
 
@@ -80,8 +81,7 @@ export function PaymentModal({
     setIsProcessing(false);
   }
 };
-  const qpay = "../assets/qpaylogo.png";
-  const qpayQR = "../assets/qpay-qr.png";
+ 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
