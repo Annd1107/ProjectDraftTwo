@@ -54,7 +54,6 @@ export function PaymentModal({
       payment_method: paymentMethod,
       status: "paid",
     });
-    await updateRevenue(organizerId, fee);
 
 
     if (error) {
@@ -69,6 +68,7 @@ export function PaymentModal({
 
     setIsProcessing(false);
     setIsSuccess(true);
+        await updateRevenue(organizerId, fee);
 
    setTimeout(() => {
   onConfirm(); // closes modal

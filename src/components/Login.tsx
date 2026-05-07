@@ -108,7 +108,11 @@ export function Login() {
                   >
                     {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
                   </button>
+                  
                 </div>
+                <Link to="/forgot-password" className="text-sm text-purple-600 hover:underline">
+  Нууц үг мартсан уу?
+</Link>
               </div>
               <div className="space-y-4">
               {/* Role Input */}

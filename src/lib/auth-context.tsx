@@ -21,7 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
-  setUser: (user: UserProfile) => void; // 👈 ADD THIS
+  setUser: (user: UserProfile| null) => void; // 👈 ADD THIS
 }
 
 const AuthContext = createContext<AuthContextType>({

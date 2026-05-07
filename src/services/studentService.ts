@@ -37,3 +37,12 @@ export async function updateStudent(
   if (error) throw error;
   return data;
 }
+export async function deleteStudent(id: string) {
+  const { error } = await supabase
+    .from("Students")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+} 

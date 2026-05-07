@@ -57,3 +57,12 @@ export async function updateOrganizer(
   if (error) throw error;
   return data;
 }
+export async function deleteOrganizer(id: string) {
+  const { error } = await supabase
+    .from("Organizers")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
