@@ -63,7 +63,7 @@ function OlympiadCalendar({ user, cursor, setCursor }: {
   const selectedEvents: CalendarEvent[] = selectedKey ? (eventMap[selectedKey] ?? []) : [];
 
   return (
-    <section className="relative py-24 px-8 bg-violet-50 dark:bg-gray-900">
+    <section className="relative py-24 px-8 bg-violet-50 dark:bg-gray-800/30">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -247,7 +247,7 @@ export function Home() {
   return (
 
     <div className="min-h-screen w-screen">
-      {!user ? (<div><section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
+      {!user ? (<div><section className="relative min-h-screen flex flex-col lg:grid lg:grid-cols-2 gap-0 overflow-hidden">
 
         <div className="p-8 relative flex items-center justify-center bg-white dark:bg-gray-900 lg:p-16 transition-colors duration-300">
           <img src={logo} alt="Logo" className="size-150" />
@@ -428,7 +428,7 @@ export function Home() {
         </section>
 
         {/* ── Features ─────────────────────────────────────────────────────── */}
-        <section className="relative py-24 px-8 bg-violet-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
+        <section className="relative py-24 px-8 bg-violet-50 dark:bg-gray-800/30">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

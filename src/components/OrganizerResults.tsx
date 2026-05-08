@@ -36,7 +36,7 @@ export function OrganizerResults() {
     if (!user || user.role !== "organizer") {
       navigate("/login");
     }
-  }, [user, navigate]);
+  }, [user]);
 
 
 useEffect(() => {

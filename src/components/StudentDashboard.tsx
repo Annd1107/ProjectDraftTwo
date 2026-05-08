@@ -39,7 +39,7 @@ export function StudentDashboard() {
 
   /** AUTH GUARD */
   useEffect(() => {
-    if (!user || user.role !== "student") {
+    if (user === null || user.role !== "student") {
       navigate("/login");
     }
   }, [user, navigate]);
@@ -124,18 +124,18 @@ export function StudentDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border-2 border-gray-300 p-8 shadow-lg"
+          className="bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 rounded-2xl border-2  p-8 shadow-lg"
         >
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ">
             <div>
-              <div className="flex items-center gap-2 text-purple mb-2">
+              <div className="flex items-center gap-2 text-white mb-2">
                 <Sparkles className="size-4" />
                 Сурагчдын самбар
               </div>
-              <h1 className="text-4xl font-bold text-purple">
+              <h1 className="text-4xl font-bold text-white">
                 Тавтай морил, {user.name}
               </h1>
-              <p className="text-purple">
+              <p className="text-white">
                 {user.school}, {user.grade}-р анги
               </p>
             </div>
@@ -150,7 +150,7 @@ export function StudentDashboard() {
           </div>
 
           {/* STATS */}
-          <div className="grid grid-cols-4 gap-4 mt-8 text-black">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 text-white">
             <div>
               <div className="text-2xl font-bold">{olympiads.length}</div>
               <div className="text-sm opacity-80">Нийт олимпиад</div>
@@ -175,7 +175,7 @@ export function StudentDashboard() {
         </motion.div>
 
         {/* SEARCH + FILTER */}
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -198,10 +198,10 @@ export function StudentDashboard() {
           </div>
 
           {/* Tab Buttons */}
-          <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl">
+          <div className="flex gap-2 bg-gray-100 dark:bg-gray-900 p-1 rounded-2xl overflow-x-auto">
             <button
               onClick={() => setActiveTab("available")}
-              className={`px-6 py-2 rounded-xl font-medium transition-all ${
+              className={`px-4 sm:px-6 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
                 activeTab === "available"
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
@@ -318,7 +318,7 @@ export function StudentDashboard() {
 
                     {isRegistered ? (
                       <span
-                        className="px-4 py-2 bg-purple-100 text-gray-400 dark:text-red-400 rounded-xl font-semibold cursor-not-allowed shadow-sm transition-all"
+                        className="px-4 py-2 bg-gray-300 dark:bg-gray-200 text-gray-600 dark:text-red-600/70 rounded-xl font-semibold cursor-not-allowed shadow-sm transition-all"
                       >
                         Бүртгүүлсэн 
                       </span>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, Users, Trophy, GraduationCap } from "lucide-react";
+import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, Users, Trophy, GraduationCap, Phone } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
@@ -14,6 +14,7 @@ export function Signup() {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
+  const [regis, setRegis] = useState("");
   const [grade, setGrade] = useState("");
   const [organization, setOrganization] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -38,8 +39,10 @@ export function Signup() {
         userData.school = school;
         userData.grade = parseInt(grade);
         userData.birthdate = birthdate; 
+        userData.regis = regis;
       } else {
         userData.organization = organization;
+        userData.phone = phone;
       }
 
         
@@ -265,6 +268,22 @@ export function Signup() {
                       />
                     </div>
                   </div>
+                   <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Register dugaar
+                    </label>
+                    <div className="relative">
+                      <School className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                      <input
+                        type="text"
+                        value={regis}
+                        onChange={(e) => setRegis(e.target.value)}
+                        required
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                        placeholder="XX12345678"
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Төрсөн огноо
@@ -299,6 +318,23 @@ export function Signup() {
                   </div>
                 </>
               ) : (
+                <>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Utasnii dugaar
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
+                      placeholder="Utasnii dugaaraa oruulna uu"
+                    />
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     {t("signup.organization")}
@@ -315,6 +351,9 @@ export function Signup() {
                     />
                   </div>
                 </div>
+
+                
+                </>
               )}
             </div>
 

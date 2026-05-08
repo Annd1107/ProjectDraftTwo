@@ -182,9 +182,9 @@ export function OrganizerDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 rounded-2xl p-8 lg:p-12 shadow-lg border border-purple-500"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-2">
-              <h1 className="text-4xl lg:text-5xl font-bold text-white">
+              <h1 className="text-3xl lg:text-5xl font-bold text-white">
                 {t("organizer.welcome")}, {user?.name}!
               </h1>
               <p className="text-purple-100 text-lg">

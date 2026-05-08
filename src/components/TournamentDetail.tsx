@@ -76,7 +76,7 @@ export function TournamentDetail() {
         Буцах
       </button>
 
-      <div className="bg-white p-8 rounded-xl border">
+      <div className="bg-white dark:bg-gray-900/40 p-8 rounded-xl border">
         <div className="flex justify-between">
           <h1 className="text-3xl font-bold">{olympiad.title}</h1>
           <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
@@ -147,7 +147,7 @@ export function TournamentDetail() {
           <div className="mt-6 border-t pt-6">
             {isRegistered ? (
               <span
-                className="px-6 py-2 bg-purple-100 text-gray-500 rounded-lg cursor-not-allowed shadow-sm transition-all"
+                className="px-6 py-2 bg-gray-300 dark:bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed shadow-sm transition-all"
               >
                 Бүртгүүлсэн
               </span>

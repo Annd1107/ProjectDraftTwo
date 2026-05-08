@@ -21,16 +21,16 @@ interface AuthContextType {
   login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
-  setUser: (user: UserProfile| null) => void; // 👈 ADD THIS
+  setUser: (user: UserProfile | null) => void; // 👈 ADD THIS
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   signup: async () => false,
   login: async () => false,
-  logout: () => {},
+  logout: () => { },
   isLoading: true,
-  setUser: () => {},
+  setUser: () => { },
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -72,13 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: inserted, error } = await supabase
           .from("Students")
           .insert({
-            id: Math.random().toString(36).substr(2, 9), 
+            id: Math.random().toString(36).substr(2, 9),
             email: data.email,
             password: data.password, // ⚠️ plain text (not secure but your choice)
             name: data.name,
             school: data.school,
             grade: data.grade,
             birthdate: data.birthdate,
+            reg: data.regis,
           })
           .select()
           .single();
@@ -87,10 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error(error);
           return false;
         }
+      
 
-        setUser({ ...inserted, role: "student" });
-        localStorage.setItem("user", JSON.stringify(inserted));
-        return true;
+if (error) { console.error(error); return false; }
+
+const studentUser = { ...inserted, role: "student" }; // ✅ role included
+setUser(studentUser);
+localStorage.setItem("user", JSON.stringify(studentUser)); // ✅ role saved
+return true;
       }
 
       const { data: inserted, error } = await supabase
@@ -100,20 +105,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: data.email,
           password: data.password,
           name: data.name,
+          phone: data.phone,
           organization: data.organization,
           revenue: 0,
         })
         .select()
         .single();
 
-      if (error) {
-        console.error(error);
-        return false;
-      }
+    // Organizer signup
 
-      setUser({ ...inserted, role: "organizer" });
-      localStorage.setItem("user", JSON.stringify(inserted));
-      return true;
+if (error) { console.error(error); return false; }
+
+const orgUser = { ...inserted, role: "organizer" }; // ✅ role included
+setUser(orgUser);
+localStorage.setItem("user", JSON.stringify(orgUser)); // ✅ role saved
+return true;
     } catch (err) {
       console.error(err);
       return false;
