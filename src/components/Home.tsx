@@ -251,8 +251,6 @@ export function Home() {
       
       {!user ? (<div><section className="relative bg-white w-full min-h-screen flex justify-center items-center gap-0 overflow-hidden dark:bg-gray-900">
 
-
-// Calendar cells smaller on mobile
 <div className="min-h-[36px] sm:min-h-[52px] rounded-xl p-1 sm:p-1.5 ..."></div>
         <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-0">
           <div className="max-w-2xl mx-auto space-y-8 relative z-10 flex flex-col items-center text-center">
