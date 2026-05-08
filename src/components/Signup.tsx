@@ -270,7 +270,7 @@ export function Signup() {
                   </div>
                    <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Register dugaar
+                     Регистрийн дугаар
                     </label>
                     <div className="relative">
                       <School className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
@@ -321,7 +321,7 @@ export function Signup() {
                 <>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Utasnii dugaar
+                    Утасны дугаар
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
@@ -331,7 +331,7 @@ export function Signup() {
                       onChange={(e) => setPhone(e.target.value)}
                       required
                       className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                      placeholder="Utasnii dugaaraa oruulna uu"
+                      placeholder="Утасны дугаараа оруулна уу"
                     />
                   </div>
                 </div>
