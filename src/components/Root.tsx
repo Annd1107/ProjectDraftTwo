@@ -132,7 +132,7 @@ export function Root() {
                   <NavLink to={user.role === "organizer" ? "/organizer" : "/student"}>
                     {t("nav.dashboard")}
                   </NavLink>
-                  {user.role === "student" ? (<NavLink to={"/achievements"}>{t("nav.achievements")}</NavLink>) : ("")}
+                  {user.role === "student" ? (<NavLink to={"/achievements"} onClick={() => setMobileMenuOpen(false)}>{t("nav.achievements")}</NavLink>) : ("")}
 
                   <Link
                     to="/notifications"
@@ -208,9 +208,10 @@ export function Root() {
                 <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>
                   {t("nav.home")}
                 </NavLink>
-                <NavLink to="/about" onClick={() => setMobileMenuOpen(false)}>
+                {!user && (                <NavLink to="/about" onClick={() => setMobileMenuOpen(false)}>
                   {t("nav.about")}
-                </NavLink>
+                </NavLink>)}
+
 
                 {user && (
                   <>
@@ -220,9 +221,8 @@ export function Root() {
                     >
                       {t("nav.dashboard")}
                     </NavLink>
-                    <NavLink to="/achievements" onClick={() => setMobileMenuOpen(false)}>
-                      {t("nav.achievements")}
-                    </NavLink>
+                    {user.role === "student" ? (<NavLink to={"/achievements"} onClick={() => setMobileMenuOpen(false)}>{t("nav.achievements")}</NavLink>) : ("")}
+
                     <NavLink to="/notifications" onClick={() => setMobileMenuOpen(false)}>
                       {t("nav.notifications")}
                     </NavLink>
