@@ -11,7 +11,7 @@ export function About() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-24 px-8 bg-purple-50 to-fuchsia-600 overflow-hidden">
+      <section className="relative py-24 px-8 bg-purple-50 to-fuchsia-600 overflow-hidden dark:bg-gray-900">
         
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -20,11 +20,11 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="text-center space-y-6"
           >
-            <h1 className="text-5xl lg:text-6xl font-bold text-black mb-6">
+            <h1 className="text-5xl lg:text-6xl font-bold text-black mb-6 dark:text-gray-100">
               {t("about.title")}
             </h1>
             
-            <p className="text-xl lg:text-2xl text-black max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl lg:text-2xl text-black max-w-3xl mx-auto leading-relaxed dark:text-gray-100">
               {t("about.description")}
             </p>
           </motion.div>
@@ -98,7 +98,7 @@ export function About() {
       </section>
 
       {/* Values Section */}
-      <section className="py-24 px-8 bg-purple-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
+      <section className="py-24 px-8 bg-purple-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

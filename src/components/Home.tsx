@@ -247,30 +247,26 @@ export function Home() {
   return (
 
     <div className="min-h-screen w-screen">
-      {!user ? (<div><section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
+      {!user ? (<div><section className="relative bg-white w-full min-h-screen flex justify-center items-center gap-0 overflow-hidden dark:bg-gray-900">
 
-        <div className="p-8 relative flex items-center justify-center bg-white dark:bg-gray-900 lg:p-16 transition-colors duration-300">
-          <img src={logo} alt="Logo" className="size-150" />
-        </div>
-
-        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-300">
-          <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
+        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-0">
+          <div className="max-w-2xl mx-auto space-y-8 relative z-10 flex flex-col items-center text-center">
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="space-y-4"
+              className="space-y-4 items-center lg:items-center"
             >
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-8xl lg:text-7xl font-bold leading-tight">
                 <span className="bg-purple-600 bg-clip-text text-transparent">
                   {t("home.title")}
                 </span>
               </h1>
-              <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-xl lg:text-3xl text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t("home.subtitle")}
               </p>
-              <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400">
+              <p className="text-base lg:text-2xl text-gray-500 dark:text-gray-400">
                 {t("home.description")}
               </p>
             </motion.div>
@@ -280,7 +276,7 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="flex flex-col sm:flex-row gap-4"
+                className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
               >
                 <Link
                   to="/signup"
@@ -302,12 +298,11 @@ export function Home() {
             )}
 
 
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-violet-200/50 dark:border-violet-800/50"
+              className="grid grid-cols-3 gap-15 dark:border-violet-800/50"
             >
               <div>
                 <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">1,200+</div>
@@ -376,7 +371,7 @@ export function Home() {
                           to="/signup"
                           className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                         >
-                          Get Started
+                          Эхлэх
                           <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                       )}
@@ -415,7 +410,7 @@ export function Home() {
                           to="/signup"
                           className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                         >
-                          Get Started
+                          Эхлэх
                           <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                       )}
@@ -428,7 +423,7 @@ export function Home() {
         </section>
 
         {/* ── Features ─────────────────────────────────────────────────────── */}
-        <section className="relative py-24 px-8 bg-violet-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
+        <section className="relative py-24 px-8 bg-violet-50 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
