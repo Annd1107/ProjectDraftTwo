@@ -39,9 +39,11 @@ export function StudentDashboard() {
 
   /** AUTH GUARD */
   useEffect(() => {
-    if (user === null || user.role !== "student") {
+    const storedUser = JSON.parse(localStorage.getItem("user")!);
+    if(storedUser.role !== "student"){
       navigate("/login");
     }
+      
   }, [user, navigate]);
 
   if (!user || user.role !== "student") return null;
@@ -247,16 +249,25 @@ export function StudentDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => navigate(`/tournament/${olympiad.id}`)}
-                  className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-6 border border-violet-200/50 dark:border-violet-800/50 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-300"
+               className={`group relative rounded-3xl p-6 border transition-all duration-300
+  ${
+    isPast
+      ? "bg-gray-200/80 dark:bg-gray-700/70 border-gray-300 dark:border-gray-600 opacity-80"
+      : "bg-white/80 dark:bg-gray-800/80 border-violet-200/50 dark:border-violet-800/50 hover:shadow-2xl hover:shadow-violet-500/20"
+  }
+`}
                 >
                   {/* Olympiad Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div
-                      className={`p-3 rounded-2xl bg-gradient-to-br ${
-                        isRegistered
-                          ? "from-green-500 to-emerald-600"
-                          : "from-violet-500 to-purple-600"
-                      }`}
+                      
+  className={`p-3 rounded-2xl bg-gradient-to-br ${
+    isPast
+      ? "from-gray-400 to-gray-600"
+      : isRegistered
+      ? "from-green-500 to-emerald-600"
+      : "from-violet-500 to-purple-600"
+  }`}
                     >
                       <Trophy className="size-6 text-white" />
                     </div>
@@ -334,6 +345,7 @@ export function StudentDashboard() {
                         Бүртгүүлэх
                       </button>
                     )}
+                    
                   </div>
                 </motion.div>
               );

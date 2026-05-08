@@ -93,7 +93,7 @@ export function TournamentEdit() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
+    <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6">
       <h1 className="text-2xl font-bold mb-6">Засах</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

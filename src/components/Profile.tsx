@@ -158,12 +158,12 @@ export function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl p-8 lg:p-12 overflow-hidden shadow-2xl shadow-violet-500/30"
+          className="relative bg-gradient-to-br   from-violet-600 via-purple-600 to-fuchsia-600 rounded-3xl p-6 sm:p-8 lg:p-12 overflow-hidden shadow-2xl shadow-violet-500/30"
         >
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6">
             {/* Avatar */}
             <div className="relative">
               <div className="size-32 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-4 border-white/30 shadow-xl">
@@ -220,7 +220,7 @@ export function Profile() {
             {/* Edit Button */}
             <button
               onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-              className="px-6 py-3 bg-white text-violet-600 rounded-2xl font-semibold hover:bg-violet-50 transition-all shadow-xl flex items-center gap-2"
+              className="w-full sm:w-auto px-6 py-3  bg-white text-violet-600 rounded-2xl font-semibold hover:bg-violet-50 transition-all shadow-xl flex items-center gap-2"
             >
               {isEditing ? (
                 <>

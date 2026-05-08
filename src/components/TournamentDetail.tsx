@@ -70,15 +70,15 @@ export function TournamentDetail() {
   const canInteract = user?.role === "student";
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <div className="max-w-4xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 mb-6">
         <ArrowLeft className="size-4" />
         Буцах
       </button>
 
-      <div className="bg-white dark:bg-gray-900/40 p-8 rounded-xl border">
-        <div className="flex justify-between">
-          <h1 className="text-3xl font-bold">{olympiad.title}</h1>
+      <div className="bg-white dark:bg-gray-900/40 p-4 sm:p-8 rounded-xl border">
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold">{olympiad.title}</h1>
           <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
             {olympiad.category}
           </span>

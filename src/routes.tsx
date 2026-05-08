@@ -14,6 +14,7 @@ import { NotFound } from "./components/NotFound";
 import { TournamentEdit } from "./components/TournamentEdit";
 import { OrganizerResults } from "./components/OrganizerResults";
 import { ForgotPassword } from "./components/ForgotPassword";
+import { RegisteredStudents } from "./components/RegisteredStudents";
 import { ResetPassword } from "./components/ResetPassword";
 
 
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "*", element: <NotFound /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
 { path: "/reset-password", element: <ResetPassword /> },
+{path: "/registered/students/:id", element: <RegisteredStudents />}
     ],
   },
 ]);

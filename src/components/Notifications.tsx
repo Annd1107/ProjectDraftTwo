@@ -126,7 +126,7 @@ export function Notifications() {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl mx-auto  sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -135,7 +135,7 @@ export function Notifications() {
           <ArrowLeft className="size-4" />
           {t("notifications.back")}
         </button>
-        <div className="flex items-center justify-between">
+        <div className=     "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               {t("notifications.title")}
@@ -146,7 +146,9 @@ export function Notifications() {
                 : t("notifications.noUnread")}
             </p>
           </div>
-          <div className="flex gap-2">
+    
+<div className="flex flex-wrap gap-2">
+
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
@@ -220,7 +222,7 @@ export function Notifications() {
                     <h3 className={`font-semibold ${notification.read ? "text-gray-700 dark:text-gray-300" : "text-gray-900 dark:text-gray-100"}`}>
                       {notification.title}
                     </h3>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-1 sm:mt-0">
                       {!notification.read && (
                         <button
                           onClick={() => markAsRead(notification.id)}
