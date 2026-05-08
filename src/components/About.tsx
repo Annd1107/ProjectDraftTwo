@@ -3,7 +3,7 @@ import { Mail, Phone, Users, Trophy, Target, BookOpen, Award } from "lucide-reac
 import { motion } from "motion/react";
 import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
-const mathImg = "../assets/olimpiadchildren.jpg";
+import mathImg from "../assets/olimpiadchildren.jpg";
 
 export function About() {
   const { t } = useLanguage();
