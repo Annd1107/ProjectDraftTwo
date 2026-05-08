@@ -43,3 +43,26 @@ export async function updateRevenue(organizerId: string, amount: number) {
   } 
   return true;
 }
+export async function updateOrganizer(
+  id: string,
+  updates: Partial<any>
+) {
+  const { data, error } = await supabase
+    .from("Organizers")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+export async function deleteOrganizer(id: string) {
+  const { error } = await supabase
+    .from("Organizers")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}

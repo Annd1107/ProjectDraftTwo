@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getOlympiads, updateOlympiad } from "../lib/tournament-api";
 import { supabase } from "../utils/supabase";
 import { useAuth } from "../lib/auth-context";
+import {sendOlympiadUpdateNotif} from "../lib/notification-utils";
 
 export function TournamentEdit() {
   const { id } = useParams();
@@ -74,8 +75,7 @@ export function TournamentEdit() {
         fileUrl: data.publicUrl,
       };
     }
-
-
+    sendOlympiadUpdateNotif(id!, title);
     await updateOlympiad(id!, {
       title,
       description,
@@ -97,23 +97,43 @@ export function TournamentEdit() {
       <h1 className="text-2xl font-bold mb-6">Засах</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2" />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border p-2" />
+  <div>
+    <label className="text-sm font-medium text-gray-700">Гарчиг</label>
+    <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Тайлбар</label>
+    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Ангилал</label>
+    <input value={category} onChange={(e) => setCategory(e.target.value)} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Огноо</label>
+    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Байршил</label>
+    <input value={location} onChange={(e) => setLocation(e.target.value)} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Бүртгэлийн төлбөр</label>
+    <input type="number" value={fee} onChange={(e) => setFee(Number(e.target.value))} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Хамгийн их оролцогч</label>
+    <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(Number(e.target.value))} className="w-full border p-2 rounded" />
+  </div>
+  <div>
+    <label className="text-sm font-medium text-gray-700">Бэлтгэл материал (PDF)</label>
+    <input type="file" accept=".pdf" onChange={(e) => setPdf(e.target.files?.[0] || null)} />
+  </div>
 
-        <input value={category} onChange={(e) => setCategory(e.target.value)} className="w-full border p-2" />
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border p-2" />
-
-        <input value={location} onChange={(e) => setLocation(e.target.value)} className="w-full border p-2" />
-
-        <input type="number" value={fee} onChange={(e) => setFee(Number(e.target.value))} className="w-full border p-2" />
-        <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(Number(e.target.value))} className="w-full border p-2" />
-
-        <input type="file" accept=".pdf" onChange={(e) => setPdf(e.target.files?.[0] || null)} />
-
-        <button className="px-4 py-2 bg-purple-600 text-white rounded">
-          Save Changes
-        </button>
-      </form>
+  <button className="px-4 py-2 bg-purple-600 text-white rounded">
+    Save Changes
+  </button>
+</form>
     </div>
   );
 }

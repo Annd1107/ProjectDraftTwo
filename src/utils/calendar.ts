@@ -1,4 +1,4 @@
-export const CATEGORY_MAP: any = {
+export const CATEGORY_MAP: Record<string, string> = {
   Mathematics: "math",
   Physics: "phys",
   Chemistry: "chem",
@@ -6,14 +6,25 @@ export const CATEGORY_MAP: any = {
   Biology: "bio",
 };
 
-export function transformEvents(dbEvents: any[]) {
-  return dbEvents.map((e) => ({
+export interface CalendarEvent {
+  date: Date;
+  cat: string;
+  title: string;
+  venue: string;
+  fee: string;
+  slots: number;
+  id : string;
+}
+
+export function transformEvents(dbEvents: any[]): CalendarEvent[] {
+  return dbEvents.map((e: any) => ({
     date: new Date(e.date),
     cat: CATEGORY_MAP[e.category] || "math",
     title: e.title,
     venue: e.location,
     fee: `₮${e.registration_fee}`,
     slots: e.max_participants,
+    id: e.id,
   }));
 }
 

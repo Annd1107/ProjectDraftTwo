@@ -4,12 +4,14 @@ import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, User
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
+import logo from "figma:asset/logopurple.png";
 
 export function Signup() {
   const [role, setRole] = useState<"student" | "organizer">("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [school, setSchool] = useState("");
   const [grade, setGrade] = useState("");
@@ -115,7 +117,7 @@ export function Signup() {
           {/* Logo and Header */}
           <div className="text-center">
             <div className="inline-flex items-center gap-3 mb-6">
-              <img src={"src/assets/f903ce71512caff8e98ba718ecc02ebdf4aae725.png"} alt="Logo" className="size-12 rounded-xl shadow-lg" />
+              <img src={logo} alt="Logo" className="size-12 rounded-xl shadow-lg" />
               <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                 TemtseenPortal
               </span>
@@ -242,6 +244,7 @@ export function Signup() {
                   </button>
                 </div>
               </div>
+              
 
               {/* Role-specific fields */}
               {role === "student" ? (

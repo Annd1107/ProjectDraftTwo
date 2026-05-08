@@ -44,7 +44,6 @@ export function OrganizerDashboard() {
     loadData();
 
   }, [user]);
-
   useEffect(() => {
     if (!user) return;
 
@@ -68,24 +67,22 @@ export function OrganizerDashboard() {
     setLoading(false);
   };
 
-  // FIX: categories array now has proper key-value pairs
   const categories = [
-    { mn: "Математик" },
-    { mn: "Физик" },
-    { mn: "Хими" },
-    { mn: "Биологи" },
-    { mn: "Англи хэл" },
-    { mn: "Программчлал" },
-    { mn: "Бусад" },
+    { mn: "Математик", en: "Mathematics" },
+    { mn: "Физик", en: "Physics" },
+    { mn: "Хими", en: "Chemistry" },
+    { mn: "Биологи", en: "Biology" },
+    { mn: "Англи хэл", en: "English" },
+    { mn: "Программчлал", en: "Programming" },
+    { mn: "Бусад", en: "Other" },
   ];
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === "application/pdf") {
       setPdf(file);
       setPdfFileName(file.name);
     } else {
-      alert("PDF файл оруулна уу");
+      alert("Please upload a PDF file");
     }
   };
 
@@ -98,12 +95,12 @@ export function OrganizerDashboard() {
       const filePath = `materials/${Date.now()}_${pdf.name}`;
 
       const { error } = await supabase.storage
-        .from("pdfs")
+        .from("pdfs") // ⚠️ must match your bucket name
         .upload(filePath, pdf);
 
       if (error) {
         console.error("Upload error:", error.message);
-        alert("Файл оруулахад алдаа гарлаа");
+        alert("File upload failed");
         return;
       }
 
@@ -135,7 +132,6 @@ export function OrganizerDashboard() {
     reset();
     loadData();
   };
-
   const handleDownload = async (url: string, filename: string) => {
     const res = await fetch(url);
     const blob = await res.blob();
@@ -157,7 +153,6 @@ export function OrganizerDashboard() {
     setFee(10000);
     setMaxParticipants(100);
     setPdf(null);
-    setPdfFileName(""); // FIX: also reset the filename display
   };
 
   const handleDelete = async (id: string) => {
@@ -170,11 +165,13 @@ export function OrganizerDashboard() {
     0
   );
 
+
+
   const upcomingEvents = olympiads.filter(
     o => new Date(o.date) > new Date()
   ).length;
 
-  if (loading) return <div>Уншиж байна...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -191,7 +188,7 @@ export function OrganizerDashboard() {
                 {t("organizer.welcome")}, {user?.name}!
               </h1>
               <p className="text-purple-100 text-lg">
-                {user?.organization || "Бие даасан зохион байгуулагч"}
+                {user?.organization || "Independent Organizer"}
               </p>
             </div>
 
@@ -243,7 +240,7 @@ export function OrganizerDashboard() {
         {/* Events Section */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-            Миний Олимпиадууд ({olympiads.length})
+            My Events ({olympiads.length})
           </h2>
 
           {olympiads.length === 0 ? (
@@ -270,6 +267,8 @@ export function OrganizerDashboard() {
                 const isPast = new Date(olympiad.date) < new Date();
                 const participationRate = (olympiad.registrations.length / olympiad.max_participants) * 100;
 
+                const isOwner = user?.role === "organizer" && user?.id === olympiad.organizer_id;
+
                 return (
                   <motion.div
                     key={olympiad.id}
@@ -288,7 +287,7 @@ export function OrganizerDashboard() {
                       <div className="flex gap-2">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // FIX: prevent card navigation on delete
+                            e.stopPropagation();
                             handleDelete(olympiad.id);
                           }}
                           className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400 transition-colors"
@@ -307,7 +306,7 @@ export function OrganizerDashboard() {
                     </p>
 
                     {/* Details */}
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-4" >
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Calendar className="size-4 text-purple-600 dark:text-purple-400" />
                         <span>{new Date(olympiad.date).toLocaleDateString()}</span>
@@ -335,7 +334,7 @@ export function OrganizerDashboard() {
                     {/* Progress Bar */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600 dark:text-gray-400">Оролцогчид</span>
+                        <span className="text-gray-600 dark:text-gray-400">Participants</span>
                         <span className="font-semibold text-gray-900 dark:text-gray-100">
                           {olympiad.registered_count}/{olympiad.max_participants}
                         </span>
@@ -360,12 +359,12 @@ export function OrganizerDashboard() {
                         ? "bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400"
                         : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                         }`}>
-                        {isPast ? "Дууссан" : "Идэвхтэй"}
+                        {isPast ? "Completed" : "Active"}
                       </div>
                     </div>
                     <div className="mt-4 pt-4 border-t border-violet-200/50 dark:border-violet-800/50">
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/organizer/results/${olympiad.id}`) }}
+                        onClick={(e) => {e.stopPropagation(); navigate(`/organizer/results/${olympiad.id}`)}}
                         className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all"
                       >
                         <BarChart3 className="size-4" />
@@ -373,6 +372,7 @@ export function OrganizerDashboard() {
                       </button>
                     </div>
                   </motion.div>
+
                 );
               })}
             </div>
@@ -420,7 +420,7 @@ export function OrganizerDashboard() {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="ж.нь., Үндэсний Математикийн Олимпиад"
+                    placeholder="e.g., National Mathematics Olympiad"
                   />
                 </div>
 
@@ -434,7 +434,7 @@ export function OrganizerDashboard() {
                     required
                     rows={4}
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all resize-none"
-                    placeholder="Арга хэмжээгээ тайлбарлана уу..."
+                    placeholder="Describe your event..."
                   />
                 </div>
 
@@ -449,10 +449,10 @@ export function OrganizerDashboard() {
                       required
                       className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                     >
-                      <option value="">Хичээл сонгох</option>
+                      <option value="">Select category</option>
                       {categories.map((cat) => (
-                        <option key={cat.mn} value={cat.mn}>
-                          {cat.mn}
+                        <option key={cat.en} value={cat.en}>
+                          {cat.en}
                         </option>
                       ))}
                     </select>
@@ -482,7 +482,7 @@ export function OrganizerDashboard() {
                     onChange={(e) => setLocation(e.target.value)}
                     required
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                    placeholder="ж.нь., Улаанбаатар, Монгол"
+                    placeholder="e.g., Ulaanbaatar, Mongolia"
                   />
                 </div>
 
@@ -533,7 +533,7 @@ export function OrganizerDashboard() {
                     >
                       <Upload className="size-5 text-gray-500" />
                       <span className="text-gray-600 dark:text-gray-400">
-                        {pdfFileName || "PDF файл оруулах"}
+                        {pdfFileName || "Upload PDF file"}
                       </span>
                     </label>
                   </div>

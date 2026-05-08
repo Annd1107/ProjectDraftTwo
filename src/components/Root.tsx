@@ -124,11 +124,11 @@ export function Root() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-2">
-              <NavLink to="/">{t("nav.home")}</NavLink>
-              <NavLink to="/about">{t("nav.about")}</NavLink>
-
-              {user && (
-                <>
+                              <NavLink to="/">{t("nav.home")}</NavLink>
+              {!user ? (
+             <NavLink to="/about">{t("nav.about")}</NavLink>
+              ) : (
+               <>
                   <NavLink to={user.role === "organizer" ? "/organizer" : "/student"}>
                     {t("nav.dashboard")}
                   </NavLink>
@@ -149,6 +149,8 @@ export function Root() {
                   </NavLink>
                 </>
               )}
+
+             
             </nav>
 
             {/* Right Side Actions */}

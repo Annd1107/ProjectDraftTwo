@@ -1,88 +1,106 @@
 import { supabase } from "../utils/supabase";
 
-export async function sendPaymentNotification(userId: string, olympiadName: string, email: string) {
-  const notif = {
+import emailjs from "@emailjs/browser";
+
+async function sendEmail(email: string, subject: string, message: string, name:string) {
+  console.log("to_email value:", email); // ✅ check this
+  try {
+    await emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      {
+        to_email: email,
+        subject,
+        message,
+        to_name: name,
+      },
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    );
+  } catch (err) {
+    console.error("Email failed:", err);
+  }
+}
+// ─── Core notification creator ───────────────────────────────────────────────
+async function createNotification(notif: {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+}) {
+  const { error } = await supabase.from("notifications").insert(notif);
+  if (error) console.error("Notification insert failed:", error.message);
+}
+
+// ─── Payment success ─────────────────────────────────────────────────────────
+export async function sendPaymentNotification(name_ : string,
+  userId: string,
+  olympiadName: string,
+  email: string
+) {
+  const message = `Your payment for "${olympiadName}" has been received. You are now officially registered!`;
+
+  await createNotification({
     id: Date.now().toString(),
     user_id: userId,
     type: "success",
     title: "Payment Successful",
-    message: `Your payment for "${olympiadName}" has been received. You are now officially registered!`,
-    read: false
-  }
-  const { error } = await createNotification(notif);
-  await sendEmail(
-    email,
-    "Payment Successful",
-    `Your payment for "${olympiadName}" has been received. You are now officially registered!`
-  );
-  if (error) console.error("Failed to send notification:", error.message);
+    message,
+    read: false,
+  });
+
+  await sendEmail(email, "Payment Successful", message,  name_);
 }
+export async function sendPassEmail(email: string, name:string, newPass: string) {
+  const message = `Your password has been reset. Your new password is: ${newPass}`;
+  
+  await sendEmail(email, "Password Reset", message, name);
+}
+
+// ─── Olympiad updated (notify all registered students) ───────────────────────
 export async function sendOlympiadUpdateNotif(
   olympiad_id: string,
   olympiadName: string,
-  title: string
 ) {
-  const { data: registrations, error } = await supabase
+  // 1. Get registrations
+  const { data: registrations, error: regError } = await supabase
     .from("Registrations")
     .select("student_id")
     .eq("olympiad_id", olympiad_id);
 
-  if (error || !registrations) {
-    console.error("Failed to fetch registrations:", error?.message);
+  if (regError || !registrations) {
+    console.error("Failed to fetch registrations:", regError?.message);
     return;
   }
 
-  const studentIds = registrations.map(r => r.student_id);
-
-  const { data: students, error: studentsError } = await supabase
+  // 2. Get student emails
+  const studentIds = registrations.map((r) => r.student_id);
+  const { data: students, error: studentError } = await supabase
     .from("Students")
-    .select("id, email")
+    .select("id, name, email")
     .in("id", studentIds);
 
-  if (studentsError || !students) {
-    console.error("Failed to fetch students:", studentsError?.message);
+  if (studentError || !students) {
+    console.error("Failed to fetch students:", studentError?.message);
     return;
   }
+
+  // 3. Notify each student
+  const message = `"${olympiadName}" has been updated. Check the latest details.`;
 
   for (const student of students) {
     if (!student.email) continue;
 
-    await sendEmail(
-      student.email,
-      "Olympiad Updated",
-      `"${olympiadName}" has been updated. Check the platform.`
-    );
+    await sendEmail(student.email, "Olympiad Updated", message, student.name);
 
     await createNotification({
-      id: Date.now().toString(),
+      id: Date.now().toString(),        // ⚠️ see note below
       user_id: student.id,
       type: "info",
       title: "Olympiad Updated",
-      message: `"${olympiadName}" has been updated. Check the latest details.`,
+      message,
       read: false,
     });
   }
-
-  console.log("sendOlympiadUpdateNotif called", olympiad_id);
-}
-/** ✅ send email via API */
-export async function sendEmail(email: string, subject: string, message: string) {
-  const { data, error } = await supabase.functions.invoke("send-email", {
-    body: {
-      email,
-      subject,
-      message,
-    },
-  });
-
-  if (error) {
-    console.error("Email error:", error.message);
-  }
-
-  return data;
-}
-
-/** ✅ create notification */
-export async function createNotification(noti: any) {
-  return await supabase.from("notifications").insert(noti);
 }

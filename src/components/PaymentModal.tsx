@@ -5,6 +5,11 @@ import { useAuth } from "../lib/auth-context";
 import { updateRevenue } from "../services/organizerService"; 
 import { useOlympiads } from "../lib/tournament-context";
 import { sendPaymentNotification } from "../lib/notification-utils";
+ import qpay from "../assets/qpaylogo.png";
+  import qpayQR from "../assets/qpay-qr.png";
+
+
+
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -49,7 +54,6 @@ export function PaymentModal({
       payment_method: paymentMethod,
       status: "paid",
     });
-    await updateRevenue(organizerId, fee);
 
 
     if (error) {
@@ -59,14 +63,12 @@ export function PaymentModal({
       return;
     }
 
-    // update organizer revenue
-    await updateRevenue(organizerId, fee);
-
     // ✅ SEND NOTIFICATION (FIXED)
-    await sendPaymentNotification(user.id, tournamentTitle,  user.email || "");
+    await sendPaymentNotification(user.name, user.id, tournamentTitle,  user.email, );
 
     setIsProcessing(false);
     setIsSuccess(true);
+        await updateRevenue(organizerId, fee);
 
    setTimeout(() => {
   onConfirm(); // closes modal
@@ -79,7 +81,7 @@ export function PaymentModal({
     setIsProcessing(false);
   }
 };
-
+ 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
@@ -122,7 +124,7 @@ export function PaymentModal({
                 <div
                   className="p-4 rounded-xl border-2 transition-all border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700"
                 >
-                  <img src="src/assets/qpaylogo.png" alt="QPay Logo" className="h-8 mx-auto mb-2" />
+                  <img src={qpay} alt="QPay Logo" className="h-8 mx-auto mb-2" />
                 </div>
               </div>
             </div>
@@ -135,7 +137,7 @@ export function PaymentModal({
                 </p>
                 <div className="flex justify-center">
                   <img
-                    src={"src/assets/qpay-qr.png"}
+                    src={qpayQR}
                     alt="QPay QR Code"
                     className="w-48 h-48 border-4 border-white dark:border-gray-600 rounded-xl shadow-lg"
                   />

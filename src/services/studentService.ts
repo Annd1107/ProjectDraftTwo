@@ -23,3 +23,26 @@ export async function addStudent(student : Student) {
 export async function createStudent(profile : any) {
   return await supabase.from("Students").insert([profile]);
 }
+export async function updateStudent(
+  id: string,
+  updates: Partial<Student>
+) {
+  const { data, error } = await supabase
+    .from("Students")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+export async function deleteStudent(id: string) {
+  const { error } = await supabase
+    .from("Students")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+} 

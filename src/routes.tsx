@@ -13,6 +13,8 @@ import { Achievements } from "./components/Achievements";
 import { NotFound } from "./components/NotFound";
 import { TournamentEdit } from "./components/TournamentEdit";
 import { OrganizerResults } from "./components/OrganizerResults";
+import { ForgotPassword } from "./components/ForgotPassword";
+import { ResetPassword } from "./components/ResetPassword";
 
 
 export const router = createBrowserRouter([
@@ -33,6 +35,8 @@ export const router = createBrowserRouter([
       { path: "notifications", element: <Notifications /> },
       { path: "achievements", element: <Achievements /> },
       { path: "*", element: <NotFound /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+{ path: "/reset-password", element: <ResetPassword /> },
     ],
   },
 ]);

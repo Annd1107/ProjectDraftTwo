@@ -4,6 +4,7 @@ import { Mail, Lock, ArrowRight, Trophy, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
+import logo from "figma:asset/logopurple.png";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,6 @@ export function Login() {
   const { login } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const logo = "src/assets/logopurple.png";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +108,11 @@ export function Login() {
                   >
                     {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
                   </button>
+                  
                 </div>
+                <Link to="/forgot-password" className="text-sm text-purple-600 hover:underline">
+  Нууц үг мартсан уу?
+</Link>
               </div>
               <div className="space-y-4">
               {/* Role Input */}

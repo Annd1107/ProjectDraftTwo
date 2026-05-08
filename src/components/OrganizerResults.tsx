@@ -8,6 +8,7 @@ import { motion } from "motion/react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts@2.15.2";
 import { getPlacementsByOlympiad, savePlacements } from "../lib/placements-api";
 import { getStudents, Student} from "../services/studentService";
+import { getRegistrations } from "../lib/tournament-api";
 interface Result {
   studentId: string;
   score: number;
@@ -51,12 +52,37 @@ useEffect(() => {
 }, [id]);
 useEffect(() => {
   const loadStudents = async () => {
-    const data = await getStudents();
-    setStudents(data);
+    if (!id) return;
+
+    try {
+      // get registrations for THIS olympiad only
+      const registrations = await getRegistrations();
+
+      const filteredRegistrations = registrations.filter(
+        (r) => r.olympiad_id === id
+      );
+
+      // extract student ids
+      const studentIds = filteredRegistrations.map(
+        (r) => r.student_id
+      );
+
+      // get all students
+      const allStudents = await getStudents();
+
+      // keep only registered students
+      const filteredStudents = allStudents.filter((s) =>
+        studentIds.includes(s.id)
+      );
+
+      setStudents(filteredStudents);
+    } catch (err) {
+      console.error("Failed loading students:", err);
+    }
   };
 
   loadStudents();
-}, []);
+}, [id]);
 const getStudentName = (studentId: string) => {
   return students.find(s => s.id === studentId)?.name || "Unknown";
 };
