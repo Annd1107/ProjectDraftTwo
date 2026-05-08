@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { Mail, Lock, User, School, Hash, Building, ArrowRight, Eye, EyeOff, Users, Trophy, GraduationCap, Phone } from "lucide-react";
+import { Mail, Lock, User, School, Contact,Building, ArrowRight, Eye, EyeOff, Users, Trophy, GraduationCap, Phone } from "lucide-react";
 import { useAuth } from "../lib/auth-context";
 import { useLanguage } from "../lib/language-context";
 import { motion } from "motion/react";
@@ -273,7 +273,7 @@ export function Signup() {
                      Регистрийн дугаар
                     </label>
                     <div className="relative">
-                      <School className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                      <Contact className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
                       <input
                         type="text"
                         value={regis}
