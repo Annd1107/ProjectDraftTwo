@@ -9,6 +9,7 @@ import { useEvents } from "../lib/event-context";
 import { transformEvents, buildEventMap, dateKey } from "../utils/calendar";
 
 const logo = "src/assets/logopurple.png";
+const homepic = "src/assets/olimpiadchildren.jpg";
 
 const CATS = [
   { id: "math", label: "Математик", color: "#7F77DD", bg: "#EEEDFE", text: "#3C3489" },
@@ -216,29 +217,11 @@ export function Home() {
     <div className="min-h-screen w-screen">
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen grid lg:grid-cols-2 gap-0 overflow-hidden">
-
-        {/* Dark mode toggle button — floats top-right over hero */}
-        <button
-          onClick={toggleDark}
-          aria-label="Toggle dark mode"
-          className="absolute top-6 right-6 z-20 p-2.5 rounded-full
-                     bg-violet-100 dark:bg-gray-700
-                     text-violet-600 dark:text-yellow-400
-                     hover:bg-violet-200 dark:hover:bg-gray-600
-                     shadow-md transition-all duration-300"
-        >
-          {darkMode ? <Sun className="size-5" /> : <Moon className="size-5" />}
-        </button>
-
-        {/* Left — Logo */}
-        <div className="p-8 relative flex items-center justify-center bg-white dark:bg-gray-900 lg:p-16 transition-colors duration-300">
-          <img src={logo} alt="Logo" className="size-150" />
-        </div>
+      <section className="relative min-h-screen py-24 px-8 bg-white dark:bg-gray-900 flex items-center justify-center">
 
         {/* Right — Content */}
-        <div className="relative flex items-center p-8 lg:p-16 bg-white dark:bg-gray-900 transition-colors duration-300">
-          <div className="max-w-2xl mx-auto lg:mx-0 space-y-8 relative z-10">
+        <div className="relative flex items-center justify-center p-8 bg-white dark:bg-gray-900 transition-colors duration-300">
+          <div className="max-w-2xl mx-auto lg:mx-0 space-y-12 relative z-10 justify-center flex-col items-center text-center">
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -246,15 +229,15 @@ export function Home() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="space-y-4"
             >
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-8xl lg:text-7xl font-bold leading-tight">
                 <span className="bg-purple-600 bg-clip-text text-transparent">
                   {t("home.title")}
                 </span>
               </h1>
-              <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-xl lg:text-3xl text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t("home.subtitle")}
               </p>
-              <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400">
+              <p className="text-base lg:text-2xl text-gray-500 dark:text-gray-400">
                 {t("home.description")}
               </p>
             </motion.div>
@@ -264,7 +247,7 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="flex flex-col sm:flex-row gap-4"
+                className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
               >
                 <Link
                   to="/signup"
@@ -293,7 +276,7 @@ export function Home() {
               >
                 <Link
                   to={user.role === "organizer" ? "/organizer" : "/student"}
-                  className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-2xl font-semibold shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transition-all duration-300"
+                  className="group inline-flex items-center gap-6 px-30 py-4 bg-purple-600 text-white rounded-2xl font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 >
                   {t("nav.dashboard")}
                   <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
@@ -305,7 +288,7 @@ export function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-violet-200/50 dark:border-violet-800/50"
+              className="grid grid-cols-3 gap-15 dark:border-violet-800/50"
             >
               <div>
                 <div className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">1,200+</div>
@@ -363,7 +346,7 @@ export function Home() {
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.studentTitle")}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{t("home.studentDesc")}</p>
                     <ul className="space-y-3 mb-8">
-                      {["Browse 45+ tournaments", "Easy registration process", "Track your achievements"].map(item => (
+                      {["45+ олимпиад", "Өөрт амархан бүртгүүлэх", "Амжилтаа хянах"].map(item => (
                         <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                           <CheckCircle2 className="size-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
                           <span>{item}</span>
@@ -375,7 +358,7 @@ export function Home() {
                         to="/signup"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold shadow-lg shadow-violet-500/30 hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                       >
-                        Get Started
+                        Эхлэх
                         <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
                       </Link>
                     )}
@@ -402,7 +385,7 @@ export function Home() {
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("home.organizerTitle")}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{t("home.organizerDesc")}</p>
                     <ul className="space-y-3 mb-8">
-                      {["Create unlimited events", "Manage registrations", "Analytics dashboard"].map(item => (
+                      {["Олимпиад үүсгэх", "Бүртгэл удирдах", "Аналитик дэлгэрэнгүй"].map(item => (
                         <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                           <CheckCircle2 className="size-5 text-purple-600 dark:text-fuchsia-400 flex-shrink-0" />
                           <span>{item}</span>
@@ -414,7 +397,7 @@ export function Home() {
                         to="/signup"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:shadow-violet-500/40 transition-all group"
                       >
-                        Get Started
+                        Эхлэх
                         <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
                       </Link>
                     )}

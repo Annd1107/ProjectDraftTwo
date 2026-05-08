@@ -3,7 +3,7 @@ import { Mail, Phone, Users, Trophy, Target, BookOpen, Award } from "lucide-reac
 import { motion } from "motion/react";
 import logo from "figma:asset/f903ce71512caff8e98ba718ecc02ebdf4aae725.png";
 
-const mathImg = "https://images.unsplash.com/photo-1648801098849-565ca6939c56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXRoZW1hdGljcyUyMG9seW1waWFkJTIwY29tcGV0aXRpb24lMjBzdHVkZW50c3xlbnwxfHx8fDE3NzUwNTIzNDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+const mathImg = "src/assets/olimpiadchildren.jpg";
 
 export function About() {
   const { t } = useLanguage();
@@ -11,7 +11,7 @@ export function About() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-24 px-8 bg-purple-600 to-fuchsia-600 overflow-hidden">
+      <section className="relative py-24 px-8 bg-purple-50 to-fuchsia-600 overflow-hidden">
         
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -20,11 +20,11 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="text-center space-y-6"
           >
-            <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h1 className="text-5xl lg:text-6xl font-bold text-black mb-6">
               {t("about.title")}
             </h1>
             
-            <p className="text-xl lg:text-2xl text-violet-100 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl lg:text-2xl text-black max-w-3xl mx-auto leading-relaxed">
               {t("about.description")}
             </p>
           </motion.div>
@@ -81,13 +81,13 @@ export function About() {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-500/20">
+              <div className="relative rounded-3xl overflow-hidden shadow-xl shadow-violet-500/50">
                 <img
                   src={mathImg}
                   alt="Mathematics olympiad"
                   className="w-full h-[500px] object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-600/80 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-violet-500/80 to-transparent"></div>
               </div>
 
               {/* Decorative element */}
@@ -98,7 +98,7 @@ export function About() {
       </section>
 
       {/* Values Section */}
-      <section className="py-24 px-8 bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
+      <section className="py-24 px-8 bg-purple-50 dark:from-gray-950 dark:via-purple-950/20 dark:to-violet-950/30">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -146,12 +146,11 @@ export function TournamentDetail() {
         {canInteract && (
           <div className="mt-6 border-t pt-6">
             {isRegistered ? (
-              <button
-                onClick={handleUnregister}
-                className="px-6 py-2 bg-red-100 text-red-700 rounded-lg"
+              <span
+                className="px-6 py-2 bg-purple-100 text-gray-500 rounded-lg cursor-not-allowed shadow-sm transition-all"
               >
-                Бүртгэл цуцлах
-              </button>
+                Бүртгүүлсэн
+              </span>
             ) : (
               <button
                 onClick={handleRegister}

@@ -124,25 +124,25 @@ export function StudentDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 shadow-lg"
+          className="bg-white rounded-2xl border-2 border-gray-300 p-8 shadow-lg"
         >
           <div className="flex justify-between items-center">
             <div>
-              <div className="flex items-center gap-2 text-white/80 mb-2">
+              <div className="flex items-center gap-2 text-purple mb-2">
                 <Sparkles className="size-4" />
                 Сурагчдын самбар
               </div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-4xl font-bold text-purple">
                 Тавтай морил, {user.name}
               </h1>
-              <p className="text-purple-100">
+              <p className="text-purple">
                 {user.school}, {user.grade}-р анги
               </p>
             </div>
 
             <Link
               to="/achievements"
-              className="px-5 py-3 bg-white text-purple-700 rounded-xl font-semibold"
+              className="px-5 py-3 bg-purple-600 text-white rounded-xl font-semibold"
             >
               <Award className="inline size-5 mr-2" />
               Амжилт
@@ -150,7 +150,7 @@ export function StudentDashboard() {
           </div>
 
           {/* STATS */}
-          <div className="grid grid-cols-4 gap-4 mt-8 text-white">
+          <div className="grid grid-cols-4 gap-4 mt-8 text-black">
             <div>
               <div className="text-2xl font-bold">{olympiads.length}</div>
               <div className="text-sm opacity-80">Нийт олимпиад</div>
@@ -317,15 +317,11 @@ export function StudentDashboard() {
                     </div>
 
                     {isRegistered ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUnregisterClick(olympiad.id);
-                        }}
-                        className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-semibold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all"
+                      <span
+                        className="px-4 py-2 bg-purple-100 text-gray-400 dark:text-red-400 rounded-xl font-semibold cursor-not-allowed shadow-sm transition-all"
                       >
-                        Болих
-                      </button>
+                        Бүртгүүлсэн 
+                      </span>
                     ) : (
                       <button
                         onClick={(e) => {
@@ -333,7 +329,7 @@ export function StudentDashboard() {
                           handleRegister(olympiad.id);
                         }}
                         disabled={isPast || olympiad.registered_count >= olympiad.max_participants}
-                        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/30 transition-all"
+                        className="px-4 py-2 bg-purple-600 text-white rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-500/30 transition-all"
                       >
                         Бүртгүүлэх
                       </button>
@@ -358,33 +354,7 @@ export function StudentDashboard() {
         />
       )}
 
-      {/* UNREGISTER MODAL */}
-      {showUnregisterModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-              Бүртгэл цуцлах уу?
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Та энэ тэмцээнээс бүртгэлээ цуцлахдаа итгэлтэй байна уу?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={confirmUnregister}
-                className="flex-1 py-2 bg-red-600 text-white rounded-xl"
-              >
-                Тийм
-              </button>
-              <button
-                onClick={() => setShowUnregisterModal(false)}
-                className="flex-1 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl"
-              >
-                Үгүй
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    
     </div>
   );
 }
