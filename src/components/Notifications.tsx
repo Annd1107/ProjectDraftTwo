@@ -192,7 +192,7 @@ export function Notifications() {
 
       {loading && (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          Loading notifications...
+          Уншиж байна...
         </div>
       )}
 

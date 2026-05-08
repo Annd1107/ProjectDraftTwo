@@ -39,21 +39,21 @@ export async function sendPaymentNotification(name_ : string,
   olympiadName: string,
   email: string
 ) {
-  const message = `Your payment for "${olympiadName}" has been received. You are now officially registered!`;
+  const message = `Та "${olympiadName}" олимпиадад амжилттай бүртгүүллээ. Төлбөрөө баталгаажуулсан тул олимпиадын дэлгэрэнгүй мэдээллийг шалгаарай. Амжилт хүсье!`;
 
   await createNotification({
     id: Date.now().toString(),
     user_id: userId,
     type: "success",
-    title: "Payment Successful",
+    title: "Төлбөр амжилттай",
     message,
     read: false,
   });
 
-  await sendEmail(email, "Payment Successful", message,  name_);
+  await sendEmail(email, "Төлбөр амжилттай", message,  name_);
 }
 export async function sendPassEmail(email: string, name:string, newPass: string) {
-  const message = `Your password has been reset. Your new password is: ${newPass}`;
+  const message = `Таны нууц үг амжилттай солигдлоо. Шинэ нууц үг: ${newPass}`;
   
   await sendEmail(email, "Password Reset", message, name);
 }
