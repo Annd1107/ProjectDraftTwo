@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { Root } from "./components/Root";
 import { Home } from "./components/Home";
 import { Login } from "./components/Login";
@@ -36,8 +36,8 @@ export const router = createBrowserRouter([
       { path: "notifications", element: <Notifications /> },
       { path: "achievements", element: <Achievements /> },
       { path: "*", element: <NotFound /> },
-      { path: "/forgot-password", element: <ForgotPassword /> },
-{ path: "/reset-password", element: <ResetPassword /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+{ path: "reset-password", element: <ResetPassword /> },
 {path: "/registered/students/:id", element: <RegisteredStudents />}
     ],
   },
