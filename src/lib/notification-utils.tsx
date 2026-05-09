@@ -87,18 +87,18 @@ export async function sendOlympiadUpdateNotif(
   }
 
   // 3. Notify each student
-  const message = `"${olympiadName}" has been updated. Check the latest details.`;
+  const message = `"${olympiadName}"шинэчлэгдсэн байна. Дэлгэрэнгүй мэдээллийг шалгана уу.`;
 
   for (const student of students) {
     if (!student.email) continue;
 
-    await sendEmail(student.email, "Olympiad Updated", message, student.name);
+    await sendEmail(student.email, "Olympiad өөрчлөгдсөн", message, student.name);
 
     await createNotification({
       id: Date.now().toString(),        // ⚠️ see note below
       user_id: student.id,
       type: "info",
-      title: "Olympiad Updated",
+      title: "Olympiad өөрчлөгдсөн",
       message,
       read: false,
     });
