@@ -130,10 +130,7 @@ export function StudentDashboard() {
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ">
             <div>
-              <div className="flex items-center gap-2 text-white mb-2">
-                <Sparkles className="size-4" />
-                Сурагчдын самбар
-              </div>
+              
               <h1 className="text-4xl font-bold text-white">
                 Тавтай морил, {user.name}
               </h1>
